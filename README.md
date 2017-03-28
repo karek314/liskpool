@@ -1,14 +1,14 @@
 # Lisk Pool
 This is first and fully open-sourced Lisk delegate forging pool (also known as delegate reward sharing). Written in PHP.
 
-#Requirements
+# Requirements
 <a href="https://mariadb.org" target="_blank">MariaDB server</a><br>
 <a href="https://memcached.org" target="_blank">Memcached</a><br>
 <a href="http://nginx.org" target="_blank">Nginx</a><br>
 <a href="https://lisk.io/documentation" target="_blank">Lisk Node</a><br>
 <a href="http://www.highcharts.com" target="_blank">Highcharts (included in project)</a><br>
  
-#Installation
+# Installation
 <pre>
 apt-get install nginx mariadb-server memcached
 </pre>
@@ -48,7 +48,7 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 'secondSecret' => 'passphrase2' //<- Second passphrase, if you dont have one leave it empty ex. ""
 ```
 
-#Usage
+# Usage
 Start LISK node as usual, and set up it to forging. But please note that you can forge with different node that one used for hosting pool.
 
 Navigate to <pre>/private/</pre> directory and start background scripts:<br>
@@ -71,7 +71,7 @@ All background scripts can be easily accessed with
 screen -x processing/stats/withdraw/bestnode
 </pre>
 
-##Forging productivity
+## Forging productivity
 Optionally you can use [lisk-best-forger](https://github.com/karek314/lisk-best-forger) background script to improve forging productivity.
 <pre>
 git submodule update --init --recursive
@@ -81,16 +81,16 @@ nano config.php
 In private/config.php you need to add trusted nodes and it's ports. Each specified server needs to have whitelisted IP address of server which will be used to run this script. As described [here](https://lisk.io/documentation?i=lisk-docs/BinaryInstall).
 Passphrase will be taken from main configuration file. For more details visit main [lisk-best-forger](https://github.com/karek314/lisk-best-forger) repository.
 
-####Usage
+#### Usage
 <pre>
 screen -dmS bestforger php daemon.php
 </pre>
 This script should be used along with trusted servers only via SSL.
 
-#Contributing
+# Contributing
 If you want to contribute, fork and pull request or open issue.
 
-#License
+# License
 Entire PHP is under The MIT License (MIT)<br>
 Front-end(site theme) is used from http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/<br>
 Personally i own license, so better buy license or use your own front-end.
