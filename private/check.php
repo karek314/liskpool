@@ -37,7 +37,7 @@ while ($row=mysqli_fetch_row($existResult)){
 	$total = $total + $balanceinlsk;
 }
 
-echo "\nUsers Table:".$balanceinlsk;
+echo "\nUsers Table:".$total;
 echo "\n------Owned:".$balanceinlsk_p;
 
 if ($balanceinlsk_p > $total) {
