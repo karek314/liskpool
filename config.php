@@ -16,6 +16,7 @@ return array(
 	'fixed_withdraw_fee' => '0.1',
 	'withdraw_interval_in_sec' => '86400',
 	'secret' => 'passphrase1',
-	'secondSecret' => ''
+	'secondSecret' => '',
+	'public_directory' => 'private'
 );
 ?>
