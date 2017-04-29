@@ -6,6 +6,7 @@ $delegate = $config['delegate_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
 $protocol = $config['protocol'];
+$public_directory = $config['public_directory'];
 
 while(1) {
   $m = new Memcached();
@@ -84,6 +85,84 @@ while(1) {
       $add2Stats = "INSERT INTO miner_balance (miner, value, var_timestamp) VALUES".$users_data;
       $querydone = mysqli_query($mysqli,$add2Stats) or die('erros miner_balance');
     }
+    //Update data for /charts/
+    //approval
+    $existQuery = "SELECT votepower,val_timestamp FROM pool_votepower ORDER BY id ASC";
+    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
+    $count = 0;
+    $count = mysqli_num_rows($existResult);
+    $x=0;
+    $x++;
+    $json_output = '[';
+    while ($row=mysqli_fetch_row($existResult)){
+      $stamp = $row[1]*1000;
+      $real = $row[0];///(1000*1000);
+      $x++;
+      $json_output .= '['.$stamp.','.$real.']';
+      if ($x-1 != $count) {
+        $json_output .= ',';
+      }
+    }
+    $json_output .= ']';
+    file_put_contents('../'.$public_directory.'/data/approval.json', $json_output);
+    //pool_rank
+    $existQuery = "SELECT value,var_timestamp FROM pool_rank ORDER BY id ASC";
+    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
+    $count = 0;
+    $count = mysqli_num_rows($existResult);
+    $x=0;
+    $x++;
+    $json_output = '[';
+    while ($row=mysqli_fetch_row($existResult)){
+      $stamp = $row[1]*1000;
+      $real = $row[0];
+      $x++;
+      $json_output .= '['.$stamp.','.$real.']';
+      if ($x-1 != $count) {
+        $json_output .= ',';
+      }
+    }
+    $json_output .= ']';
+    file_put_contents('../'.$public_directory.'/data/rank.json', $json_output);
+    //pool_balance
+    $existQuery = "SELECT value,var_timestamp FROM pool_balance ORDER BY id ASC";
+    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
+    $count = 0;
+    $count = mysqli_num_rows($existResult);
+    $x=0;
+    $x++;
+    $json_output = '[';
+    while ($row=mysqli_fetch_row($existResult)){
+      $stamp = $row[1]*1000;
+      $real = $row[0];
+      $x++;
+      $json_output .= '['.$stamp.','.$real.']';
+      if ($x-1 != $count) {
+        $json_output .= ',';
+      }
+    }
+    $json_output .= ']';
+    file_put_contents('../'.$public_directory.'/data/balance.json', $json_output);
+    //voters
+    $existQuery = "SELECT value,var_timestamp FROM pool_voters ORDER BY id ASC";
+    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
+    $count = 0;
+    $count = mysqli_num_rows($existResult);
+    $x=0;
+    $x++;
+    $json_output = '[';
+    while ($row=mysqli_fetch_row($existResult)){
+      $stamp = $row[1]*1000;
+      $real = $row[0];
+      $x++;
+      $json_output .= '['.$stamp.','.$real.']';
+      if ($x-1 != $count) {
+        $json_output .= ',';
+      }
+    }
+    $json_output .= ']';
+    file_put_contents('../'.$public_directory.'/data/voters.json', $json_output);
+    //End of chart data updating
   
     $end_time = time();
     $took = $end_time - $start_time;
