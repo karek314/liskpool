@@ -151,7 +151,7 @@ echo '<!DOCTYPE html>
     '; ?>
     <script type="text/javascript">
 $(function () {
-    $.getJSON("/api/index.php?data=hashrate&range=max", function (data) {
+    $.getJSON("/data/approval.json", function (data) {
         $("#container").highcharts("StockChart", {
             rangeSelector: {
             buttons: [{
@@ -197,10 +197,10 @@ $(function () {
                 polar: true,
                 type: "area"
             },
+            colors: ["#000000", "#000000", "#000000"],
             title : {
                 text : "Community Approval (%)"
             },
-
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
@@ -211,29 +211,20 @@ $(function () {
                 name : "Community Approval (%)",
                 data : data,
                 threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
+                fillColor : "#26C281",
                 tooltip: {
                     valueDecimals: 2
                 }
             }]
         });
-        setTimeout(rank, 1);
     });
+    setTimeout(rank, 0);
+    setTimeout(balance, 0);
+    setTimeout(miners, 0);
 });
 
 function rank() {
-    $.getJSON("/api/index.php?data=pool_rank&range=max", function (data) {
+    $.getJSON("/data/rank.json", function (data) {
         $("#container_rank").highcharts("StockChart", {
             rangeSelector: {
             buttons: [{
@@ -279,6 +270,7 @@ function rank() {
                 polar: true,
                 type: "area"
             },
+            colors: ["#000000", "#000000", "#000000"],
             title : {
                 text : "Rank"
             },
@@ -293,30 +285,18 @@ function rank() {
                 name : "Rank",
                 data : data,
                 threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
+                fillColor : "#26C281",
                 tooltip: {
                     valueDecimals: 2
                 }
             }]
         });
-        setTimeout(balance, 1);
     });
 
 };
 
 function balance() {
-    $.getJSON("/api/index.php?data=pool_balance&range=max", function (data) {
+    $.getJSON("/data/balance.json", function (data) {
         $("#container_balance").highcharts("StockChart", {
             rangeSelector: {
             buttons: [{
@@ -362,6 +342,7 @@ function balance() {
                 polar: true,
                 type: "area"
             },
+            colors: ["#000000", "#000000", "#000000"],
             title : {
                 text : "Balance (LSK)"
             },
@@ -376,30 +357,18 @@ function balance() {
                 name : "Balance (LSK)",
                 data : data,
                 threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
+                fillColor : "#26C281",
                 tooltip: {
                     valueDecimals: 2
                 }
             }]
         });
-        setTimeout(miners, 1);
     });
 
 };
 
 function miners() {
-    $.getJSON("/api/index.php?data=pool_miners&range=max", function (data) {
+    $.getJSON("/data/voters.json", function (data) {
         $("#container_miners").highcharts("StockChart", {
             rangeSelector: {
             buttons: [{
@@ -445,6 +414,7 @@ function miners() {
                 polar: true,
                 type: "area"
             },
+            colors: ["#000000", "#000000", "#000000"],
             title : {
                 text : "Votes Count"
             },
@@ -459,18 +429,7 @@ function miners() {
                 name : "Votes Count",
                 data : data,
                 threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
+                fillColor : "#26C281",
                 tooltip: {
                     valueDecimals: 2
                 }
