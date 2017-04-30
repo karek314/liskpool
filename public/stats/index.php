@@ -210,8 +210,7 @@ echo '<!DOCTYPE html>
     echo '<center>';
     echo '<a href="#"><div class="button-fill grey" style="width:94%"><div class="button-text">#'.$rank.'</b></div><div class="button-inside"><div class="inside-text"><font size="2">Rank</font></div></div></div></a>';
     
-    $total_voters_power_d = $total_voters_power/100000000000000;
-    echo '<a href="/charts"><div class="button-fill grey" style="width:94%"><div class="button-text">'.number_format((float)$total_voters_power_d, 3, '.', '').'%</b></div><div class="button-inside"><div class="inside-text">Approval</div></div></div></a>';
+    echo '<a href="/charts"><div class="button-fill grey" style="width:94%"><div class="button-text">'.number_format((float)$approval, 3, '.', '').'%</b></div><div class="button-inside"><div class="inside-text">Approval</div></div></div></a>';
 
     echo '<a href="https://explorer.lisk.io/address/'.$delegate.'" target="_blanklank"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$balanceinlsk_p.'</b></div><div class="button-inside"><div class="inside-text">Pool Balance in LISK</div></div></div></a>';
     
