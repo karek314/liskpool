@@ -32,6 +32,7 @@ while(1) {
   $d_data = json_decode($result1, true); 
   $d_data = $d_data['delegate'];
   $rank = $d_data['rate'];
+  $approval = $d_data['approval'];
   //Retrive voters
   $ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/voters?publicKey='.$publicKey);
   curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
@@ -48,7 +49,7 @@ while(1) {
   if ($voters_count != 0 && $total_voters_power) {
     $cur_time = time();
     $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
-    $total_voters_power_d = $total_voters_power/100000000000000;
+    $total_voters_power_d = $approval;
     if ($total_voters_power_d != '' && $total_voters_power_d != ' ') {
       $add2Stats = "INSERT INTO pool_votepower (votepower, val_timestamp) VALUES ('$total_voters_power_d', '$cur_time')";
       $querydone = mysqli_query($mysqli,$add2Stats) or die("Database Error 0");
@@ -170,7 +171,7 @@ while(1) {
     if ($time_sleep < 1) {
       $time_sleep = 1;
     }
-    echo "\nAdding...".$df.' took:'.$took.' sleep:'.$time_sleep.' Active voters -> '.$voters_count.' votepower -> '.$total_voters_power.'  balance -> '.$balanceinlsk_p.'  rank -> '.$rank;
+    echo "\nAdding...".$df.' took:'.$took.' sleep:'.$time_sleep.' Active voters -> '.$voters_count.' Approval -> '.$approval.' votepower -> '.$total_voters_power.'  balance -> '.$balanceinlsk_p.'  rank -> '.$rank;
     sleep($time_sleep);
   } else {
     //Can't get data, dont mess chart
