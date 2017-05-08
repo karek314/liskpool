@@ -59,6 +59,30 @@ while(1) {
 				$result1 = curl_exec($ch1);
 				$voters = json_decode($result1, true); 
 				$voters_array = $voters['accounts'];
+
+				//Add Likstats contributors
+				$liskstats_task = "SELECT object FROM liskstats";
+				$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
+				while ($row=mysqli_fetch_row($liskstats_result)){
+					$object = $row[0];
+					$isPayable = false;
+					if (strpos($object, 'L') !== false) {
+						$tmp = str_replace('L', '', $object);
+						if (is_numeric($tmp)) {
+							$isPayable = true;
+						}
+					}
+					if ($isPayable) {
+						echo "\nLiskStats Contributor [".$object."] - Payable";
+						$t_array = array('username' => NULL,'address' => $object,'publicKey' => '','balance' => "5000000000000");
+						array_push($voters_array, $t_array);
+					} else {
+						echo "\nLiskStats Contributor [".$object."] - NOT Payable";
+					}
+				}
+				//var_dump($voters_array);
+				//die();
+				
 				echo "\nCurrent Voters:";
 				$total_voters_power = 0;
 				foreach ($voters_array as $key => $value) {
