@@ -9,7 +9,7 @@ This is first and fully open-sourced Lisk delegate forging pool (also known as d
 <a href="http://www.highcharts.com" target="_blank">Highcharts (included in project)</a><br>
 
 ## Important
-Only public directory must be served with webserver. While config.php and private cannot be served.
+Only <b>public</b> directory must be served with webserver. While <b>config.php</b> and <b>private</b> cannot be served.
  
 # Installation
 <pre>
