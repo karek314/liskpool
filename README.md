@@ -8,7 +8,7 @@ This is first and fully open-sourced Lisk delegate forging pool (also known as d
 <a href="https://lisk.io/documentation" target="_blank">Lisk Node</a><br>
 <a href="http://www.highcharts.com" target="_blank">Highcharts (included in project)</a><br>
 
-# Important
+## Important
 Only public directory must be served with webserver. While config.php and private cannot be served.
  
 # Installation
