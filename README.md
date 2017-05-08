@@ -63,6 +63,8 @@ Navigate to <pre>/private/</pre> directory and start background scripts:<br>
 <pre>screen -dmS stats php stats.php</pre>
 <br>Withdraw script - this script withdraws revenue as defined in config.
 <pre>screen -dmS withdraw php withdraw.php</pre>
+<br>If you want to support Liskstats contributors and Liskstats itself use also script below. 
+<pre>screen -dmS liskstats php liskstats.php</pre>
 <br>
 Optional
 Balance checker - Simple script to compare total LISK value stored in database in reference to actual LISK stored on delegate account.
