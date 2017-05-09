@@ -7,13 +7,14 @@ use WebSocket\Client;
 $timestamp_ms = time()*1000;
 $client = new Client("ws://liskstats.net:3000/primus/?_primuscb=".$timestamp_ms."-0");
 $client->send('{"emit":["ready"]}');
-
+$x=0;
 $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
 while (1) {
   if ($x > 3600) {
     echo "\nCleaning everything (once per hour)";
     $task = "TRUNCATE TABLE `liskstats`";
     $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
+    $x=0;
   }
   $response = json_decode($client->receive(),true);
   if (isset($response['data'])) {
@@ -25,6 +26,7 @@ while (1) {
     }
   }
   sleep(1);
+  $x++;
 }
 
 ?>
