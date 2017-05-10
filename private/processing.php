@@ -63,6 +63,7 @@ while(1) {
 				//Add Likstats contributors
 				$liskstats_task = "SELECT object FROM liskstats";
 				$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
+				$tmp_arr = array();
 				while ($row=mysqli_fetch_row($liskstats_result)){
 					$object = $row[0];
 					$isPayable = false;
@@ -74,11 +75,19 @@ while(1) {
 					}
 					if ($isPayable) {
 						echo "\nLiskStats Contributor [".$object."] - Payable";
-						$t_array = array('username' => NULL,'address' => $object,'publicKey' => '','balance' => "5000000000000");
-						array_push($voters_array, $t_array);
+						array_push($tmp_arr, $object);
 					} else {
 						echo "\nLiskStats Contributor [".$object."] - NOT Payable";
 					}
+				}
+				$total_weight_to_distribute = 150000000000000;
+				$count_of_current_contributors = count($tmp_arr);
+				echo "\nLiskStats Contributors Count:".$count_of_current_contributors;
+				$single_weight = (string)floor($total_weight_to_distribute/$count_of_current_contributors);
+				foreach ($tmp_arr as $key => $value) {
+					echo "\nAdding LiskStats Contributor [".$value."] with balance:".$single_weight;
+					$t_array = array('username' => NULL,'address' => $value,'publicKey' => '','balance' => $single_weight);
+					array_push($voters_array, $t_array);
 				}
 				//var_dump($voters_array);
 				//die();
