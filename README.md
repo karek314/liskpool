@@ -92,6 +92,27 @@ screen -dmS bestforger php daemon.php
 </pre>
 This script should be used along with trusted servers only via SSL.
 
+# Public API
+<b>Specified voter balance data for charts</b>
+<pre>
+api/?data=_miner_balance&dtx=ADDRESS
+</pre>
+<b>General data for charts</b>
+<pre>
+data/approval.json
+data/balance.json
+data/rank.json
+data/voters.json
+</pre>
+<b>General pool info</b>
+<pre>
+api/info/
+</pre>
+<b>Current forged balance for each voter / contributor</b>
+<pre>
+api/info/forged/
+</pre>
+
 # Contributing
 If you want to contribute, fork and pull request or open issue.
 
