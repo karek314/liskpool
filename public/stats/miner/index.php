@@ -1,20 +1,7 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../../../config.php');
-
-
-function mysql_fix_escape_string($text){
-    if(is_array($text)) 
-        return array_map(__METHOD__, $text); 
-    if(!empty($text) && is_string($text)) { 
-        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), 
-                           array('', '', '', '', "", '', ''),$text); 
-    } 
-    $text = str_replace("'","",$text);
-    $text = str_replace('"',"",$text);
-    return $text;
-}
-
+require_once('../../../utils.php');
              
 $miner = $_GET['address'];
 if (!$miner) {

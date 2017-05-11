@@ -1,33 +1,15 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
+require_once('../../utils.php');
 $data = $_GET['data'];
-$type = $_GET['range'];
-$miner = $_GET['dtx'];
-$worker = $_GET['wrk'];
-$lol = $_GET['rr'];
-
-function mysql_fix_escape_string($text){
-    if(is_array($text)) 
-        return array_map(__METHOD__, $text); 
-    if(!empty($text) && is_string($text)) { 
-        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), 
-                           array('', '', '', '', "", '', ''),$text); 
-    } 
-    $text = str_replace("'","",$text);
-    $text = str_replace('"',"",$text);
-    return $text;
-}
-
+$forger = $_GET['dtx'];
 $data = mysql_fix_escape_string($data);
-$type = mysql_fix_escape_string($type);
-$miner = mysql_fix_escape_string($miner);
-$worker = mysql_fix_escape_string($worker);
-$lol = mysql_fix_escape_string($lol);
+$forger = mysql_fix_escape_string($forger);
 
-if ($data == '_miner_balance' && $miner && $lol) {
+if ($data == '_miner_balance' && $forger) {
 	$config = include('../../config.php');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
-	$existQuery = "SELECT value,var_timestamp FROM miner_balance WHERE miner='$miner' ORDER BY id ASC";
+	$existQuery = "SELECT value,var_timestamp FROM miner_balance WHERE miner='$forger' ORDER BY id ASC";
 	$existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
 	$count = mysqli_num_rows($existResult);
 	$x++;
@@ -43,6 +25,8 @@ if ($data == '_miner_balance' && $miner && $lol) {
     	}
 	}
 	echo ']';
+} else {
+	die(json_encode(array('success' => false,'error' => 'data or forger not specified')));
 }
 
 ?>
