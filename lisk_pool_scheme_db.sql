@@ -173,7 +173,7 @@ ALTER TABLE `miners`
 --
 ALTER TABLE `miner_balance`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `miner` (`miner`);
+  ADD KEY `miner` (`miner`);
 
 --
 -- Indexes for table `payout_history`
