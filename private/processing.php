@@ -30,7 +30,9 @@ while(1) {
 	//Retrive last forged block
 	$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/blocks/?generatorPublicKey='.$publicKey.'&limit=100&offset=0&orderBy=height:desc');
 	curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
+	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT ,7);
+  	curl_setopt($ch1, CURLOPT_TIMEOUT, 7);
 	$result1 = curl_exec($ch1);
 	$forged_block_json = json_decode($result1, true); 
 	$block_jarray = $forged_block_json['blocks'];
