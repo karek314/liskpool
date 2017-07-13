@@ -172,7 +172,8 @@ ALTER TABLE `miners`
 -- Indexes for table `miner_balance`
 --
 ALTER TABLE `miner_balance`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `miner` (`miner`);
 
 --
 -- Indexes for table `payout_history`
@@ -235,6 +236,7 @@ ALTER TABLE `miners`
 --
 -- AUTO_INCREMENT for table `miner_balance`
 --
+
 ALTER TABLE `miner_balance`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
