@@ -13,15 +13,7 @@ Only <b>public</b> directory must be served with webserver. While <b>config.php<
  
 # Installation
 <pre>
-apt-get install nginx mariadb-server memcached
-</pre>
-If you are using PHP5
-<pre>
-apt-get install php5-memcached
-</pre>
-If you are using PHP7
-<pre>
-apt-get install php7-memcached
+apt-get install nginx mariadb-server memcached php-memcached php php-curl
 </pre>
 Setup your mysql server, nginx and import database scheme <pre>lisk_pool_scheme_db.sql</pre>
 
@@ -54,26 +46,32 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 # Usage
 Start LISK node as usual, and set up it to forging. But please note that you can forge with different node that one used for hosting pool.
 
-Navigate to <pre>/private/</pre> directory and start background scripts:<br>
-<br>Node height checker, necessary even there is only one defined
+Navigate to <b>/private/</b> directory and start background scripts:<br>
+<br><b>Node height checker</b>, necessary even there is only one defined
 <pre>screen -dmS bestnode php bestnode.php</pre>
-<br>Block Processing - this script checks if delegate has forged new block, if yes it will be split as defined in config
+<br><b>Block Processing</b> - this script checks if delegate has forged new block, if yes it will split as defined in config
 <pre>screen -dmS processing php processing.php</pre>
-<br>Updating charts - this script updates data to keep charts up to date.
+<br><b>Updating charts</b> - this script updates data to keep charts up to date.
 <pre>screen -dmS stats php stats.php</pre>
-<br>Withdraw script - this script withdraws revenue as defined in config.
+<br><b>Withdraw script</b> - this script withdraws revenue as defined in config.
 <pre>screen -dmS withdraw php withdraw.php</pre>
-<br>If you want to support Liskstats contributors and Liskstats itself use also script below. 
+<br>If you want to support Liskstats contributors and Liskstats itself use also script below. This script connects to Liskstats.net and retrieve all current contributors. Every contributor is added to split with "fake" votepower which is defined in <b>processing.php</b>.
 <pre>screen -dmS liskstats php liskstats.php</pre>
 <br>
-Optional
-Balance checker - Simple script to compare total LISK value stored in database in reference to actual LISK stored on delegate account.
-<pre>php check.php</pre>
+
+<b>Optional Balance checker</b> - Simple script to compare total LISK value stored in database in reference to actual LISK stored on delegate account.
+<pre>cd helpers
+php check.php</pre>
 
 <br>
 All background scripts can be easily accessed with
 <pre>
-screen -x processing/stats/withdraw/bestnode
+NAME = "processing" or "stats" or "withdraw" or "bestnode" or "liskstats"
+screen -x NAME
+</pre>
+Example
+<pre>
+screen -x processing
 </pre>
 
 ## Forging productivity
@@ -83,7 +81,7 @@ git submodule update --init --recursive
 cd private/forging
 nano config.php
 </pre>
-In private/config.php you need to add trusted nodes and it's ports. Each specified server needs to have whitelisted IP address of server which will be used to run this script. As described [here](https://lisk.io/documentation?i=lisk-docs/BinaryInstall).
+In private/config.php you need to add trusted nodes and it's ports. Each specified server needs to have whitelisted IP address of server which will be used to run this script. As described [here](https://docs.lisk.io/docs).
 Passphrase will be taken from main configuration file. For more details visit main [lisk-best-forger](https://github.com/karek314/lisk-best-forger) repository.
 
 #### Usage
@@ -93,9 +91,9 @@ screen -dmS bestforger php daemon.php
 This script should be used along with trusted servers only via SSL.
 
 # Public API
-<b>Specified voter balance data for charts</b>
+<b>Specified voter balance data for balance chart</b>
 <pre>
-api/?data=_miner_balance&dtx=ADDRESS
+data/voters/ADDRESS.json
 </pre>
 <b>General data for charts</b>
 <pre>
@@ -113,10 +111,18 @@ api/info/
 api/info/forged/
 </pre>
 
+# Migration from older version of pool
+In past all chart data was stored in database tables, however with millions of rows and cheap vps it could have been possible bottleneck with thousands of voters. If you are pool operator and you want to keep all statistics history.
+1. Stop all background scripts
+2. Navigate to <b>/helpers/</b> directory in <b>/private/</b>
+3. Execute ```php db2files.php all``` or ```screen -dmS dump php db2files.php all```
+4. Wait until it finish, it can take hours for huge database. If your connection might drop, possibly execute this as background job choosing second command.
+5. Start updated background scripts.
+6. Tables <b>pool_xxx</b> and <b>miner_balance</b> can be deleted.
+
 # Contributing
 If you want to contribute, fork and pull request or open issue.
 
 # License
-Entire PHP is under The MIT License (MIT)<br>
-Front-end(site theme) is used from http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/<br>
-Personally i own license, so better buy license or use your own front-end.
+Everything is under MIT License (MIT) except [Front-end (site theme) which is paid.](http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/)<br>
+I do own license, so better buy license or use your own front-end. In future it will be rewritten from scratch.
