@@ -20,7 +20,7 @@ if (!$miner) {
     <meta property="og:type"               content="website" />
     <meta property="og:title"              content="Lisk.io"/>
     <meta property="og:description"        content="Lisk.io"/>
-    <link rel="shortcut icon" href="../favicon.ico">  
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">  
     <meta name="keywords" content="">
     <link href="http://fonts.googleapis.com/css?family=Merriweather+Sans:700,300italic,400italic,700italic,300,400" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet" type="text/css">
@@ -159,7 +159,7 @@ echo '<!DOCTYPE html>
     <meta property="og:type"               content="website" />
     <meta property="og:title"              content=""/>
     <meta property="og:description"        content=""/>
-    <link rel="shortcut icon" href="../favicon.ico">  
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">   
     <meta name="keywords" content="">
     <link href="http://fonts.googleapis.com/css?family=Merriweather+Sans:700,300italic,400italic,700italic,300,400" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet" type="text/css">
@@ -294,7 +294,7 @@ echo '<a href="https://explorer.lisk.io/address/'.$miner.'" target="_blank"><div
 echo '<a href="#"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$balanceinlsk.'</b></div><div class="button-inside"><div class="inside-text">Current Pending Balance</div></div></div></a>';
 echo '</center>';
 
-echo '<br><div id="container_balance"><center>Loading balance chart...</center></div>';
+echo '<br><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading balance chart...</center></div>';
 
 
 $existQuery = "SELECT balance,time,txid,fee FROM payout_history WHERE address='$miner' ORDER BY id DESC LIMIT 50;";

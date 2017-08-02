@@ -1,5 +1,6 @@
 <?php
 
+
 function mysql_fix_escape_string($text){
     if(is_array($text)){
         return false;
@@ -9,5 +10,6 @@ function mysql_fix_escape_string($text){
     $text = str_replace('"',"",$text);
     return $text;
 }
+
 
 ?>

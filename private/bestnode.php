@@ -9,6 +9,7 @@ $protocol = $config['protocol'];
 $config_lisk_host = $config['lisk_host'];
 $config_lisk_port = $config['lisk_port'];
 
+
 while(1) {
   $start_time = time();
   $df++;
@@ -59,6 +60,7 @@ while(1) {
   sleep($time_sleep);
 }
 
+
 function checkLatestBlock($url){
   $ch1 = curl_init($url);                                                                      
   curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
@@ -69,5 +71,6 @@ function checkLatestBlock($url){
   $jsondict = json_decode($result1, true); 
   return $jsondict;
 }
+
 
 ?>

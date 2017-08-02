@@ -14,7 +14,7 @@ echo '<!DOCTYPE html>
     <meta property="og:type"               content="website" />
     <meta property="og:title"              content="Lisk.io"/>
     <meta property="og:description"        content="Lisk.io"/>
-    <link rel="shortcut icon" href="../favicon.ico">  
+    <link rel="shortcut icon" href="../assets/images/favicon.ico"> 
     <meta name="keywords" content="">
     <link href="http://fonts.googleapis.com/css?family=Merriweather+Sans:700,300italic,400italic,700italic,300,400" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet" type="text/css">
@@ -76,10 +76,10 @@ echo '<!DOCTYPE html>
                 <div class="row text-left">
                     <div class="contact-form-inner col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-sm-offset-0 xs-offset-0">
                         <div class="row"> ';
-                        echo '<div id="container"><center>Loading approval chart</center></div><br>';
-                        echo '<br><br><div id="container_rank"><center>Loading rank chart</center></div><br>';
-                        echo '<br><br><div id="container_balance"><center>Loading balance chart</center></div><br>';
-                        echo '<br><br><div id="container_miners"><center>Loading vote count chart</center></div><br>';
+                        echo '<div id="container"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading approval chart</center></div><br>';
+                        echo '<br><br><div id="container_rank"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading rank chart</center></div><br>';
+                        echo '<br><br><div id="container_balance"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading balance chart</center></div><br>';
+                        echo '<br><br><div id="container_miners"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading vote count chart</center></div><br>';
                         echo '</div><!--//row-->
                     </div>
                 </div><!--//row-->

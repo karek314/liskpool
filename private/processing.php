@@ -31,8 +31,8 @@ while(1) {
 	$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/blocks/?generatorPublicKey='.$publicKey.'&limit=100&offset=0&orderBy=height:desc');
 	curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
 	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT ,7);
-  	curl_setopt($ch1, CURLOPT_TIMEOUT, 7);
+	curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT ,7); 
+  	curl_setopt($ch1, CURLOPT_TIMEOUT, 7);     
 	$result1 = curl_exec($ch1);
 	$forged_block_json = json_decode($result1, true); 
 	$block_jarray = $forged_block_json['blocks'];
@@ -82,6 +82,7 @@ while(1) {
 						echo "\nLiskStats Contributor [".$object."] - NOT Payable";
 					}
 				}
+				//Will not split anything if liskstats.php script is not running and getting current contributors.
 				$total_weight_to_distribute = 150000000000000;
 				$count_of_current_contributors = count($tmp_arr);
 				echo "\nLiskStats Contributors Count:".$count_of_current_contributors;

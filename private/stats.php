@@ -51,120 +51,28 @@ while(1) {
     $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
     $total_voters_power_d = $approval;
     if ($total_voters_power_d != '' && $total_voters_power_d != ' ') {
-      $add2Stats = "INSERT INTO pool_votepower (votepower, val_timestamp) VALUES ('$total_voters_power_d', '$cur_time')";
-      $querydone = mysqli_query($mysqli,$add2Stats) or die("Database Error 0");
+      AppendChartData(false,$total_voters_power_d,$cur_time,'approval',$public_directory);
     }
     $balanceinlsk_p = floatval($pool_balance/100000000);
     if ($balanceinlsk_p != '' && $balanceinlsk_p != ' ') {
-      $add2Stats = "INSERT INTO pool_balance (value, var_timestamp) VALUES ('$balanceinlsk_p', '$cur_time')";
-      $querydone = mysqli_query($mysqli,$add2Stats) or die("Database Error 0");
+      AppendChartData(false,$balanceinlsk_p,$cur_time,'balance',$public_directory);
     }
     if ($voters_count != '' && $voters_count != ' ') {
-      $add2Stats = "INSERT INTO pool_voters (value, var_timestamp) VALUES ('$voters_count', '$cur_time')";
-      $querydone = mysqli_query($mysqli,$add2Stats) or die("Database Error 0");
+      AppendChartData(false,$voters_count,$cur_time,'voters',$public_directory);
     }
     if ($rank != '' && $rank != ' ') {
-      $add2Stats = "INSERT INTO pool_rank (value, var_timestamp) VALUES ('$rank', '$cur_time')";
-      $querydone = mysqli_query($mysqli,$add2Stats) or die("Database Error 0");
+      AppendChartData(false,$rank,$cur_time,'rank',$public_directory);
     }
-    $db_users_count = 0;
-    $users_data = '';
-    $existQuery = "SELECT address,balance FROM miners";
-    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-    while ($row=mysqli_fetch_row($existResult)){
-      $val1 = $row[0];
-      $val2 = $row[1];
-      $balanceinlsk = floatval($val2/100000000);
+    $voters_task = "SELECT address,balance FROM miners";
+    $task_result = mysqli_query($mysqli,$voters_task)or die("Database Error");
+    while ($row=mysqli_fetch_row($task_result)){
+      $voter_address = $row[0];
+      $balanceinlsk = $row[1];
+      $balanceinlsk = floatval($balanceinlsk/100000000);
       if ($balanceinlsk != 0) {
-        $users_data = $users_data.' '."('$val1', '$balanceinlsk', '$cur_time'),";
-      }
-      $db_users_count++;
-    }
-    if ($users_data != '') {
-      $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
-      $users_data = substr($users_data, 0, -1);
-      $add2Stats = "INSERT INTO miner_balance (miner, value, var_timestamp) VALUES".$users_data;
-      $querydone = mysqli_query($mysqli,$add2Stats) or die('erros miner_balance');
-    }
-    //Update data for /charts/
-    //approval
-    $existQuery = "SELECT votepower,val_timestamp FROM pool_votepower ORDER BY id ASC";
-    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-    $count = 0;
-    $count = mysqli_num_rows($existResult);
-    $x=0;
-    $x++;
-    $json_output = '[';
-    while ($row=mysqli_fetch_row($existResult)){
-      $stamp = $row[1]*1000;
-      $real = $row[0];///(1000*1000);
-      $x++;
-      $json_output .= '['.$stamp.','.$real.']';
-      if ($x-1 != $count) {
-        $json_output .= ',';
+        AppendChartData('voters',$balanceinlsk,$cur_time,$voter_address,$public_directory);
       }
     }
-    $json_output .= ']';
-    file_put_contents('../'.$public_directory.'/data/approval.json', $json_output);
-    //pool_rank
-    $existQuery = "SELECT value,var_timestamp FROM pool_rank ORDER BY id ASC";
-    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-    $count = 0;
-    $count = mysqli_num_rows($existResult);
-    $x=0;
-    $x++;
-    $json_output = '[';
-    while ($row=mysqli_fetch_row($existResult)){
-      $stamp = $row[1]*1000;
-      $real = $row[0];
-      $x++;
-      $json_output .= '['.$stamp.','.$real.']';
-      if ($x-1 != $count) {
-        $json_output .= ',';
-      }
-    }
-    $json_output .= ']';
-    file_put_contents('../'.$public_directory.'/data/rank.json', $json_output);
-    //pool_balance
-    $existQuery = "SELECT value,var_timestamp FROM pool_balance ORDER BY id ASC";
-    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-    $count = 0;
-    $count = mysqli_num_rows($existResult);
-    $x=0;
-    $x++;
-    $json_output = '[';
-    while ($row=mysqli_fetch_row($existResult)){
-      $stamp = $row[1]*1000;
-      $real = $row[0];
-      $x++;
-      $json_output .= '['.$stamp.','.$real.']';
-      if ($x-1 != $count) {
-        $json_output .= ',';
-      }
-    }
-    $json_output .= ']';
-    file_put_contents('../'.$public_directory.'/data/balance.json', $json_output);
-    //voters
-    $existQuery = "SELECT value,var_timestamp FROM pool_voters ORDER BY id ASC";
-    $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-    $count = 0;
-    $count = mysqli_num_rows($existResult);
-    $x=0;
-    $x++;
-    $json_output = '[';
-    while ($row=mysqli_fetch_row($existResult)){
-      $stamp = $row[1]*1000;
-      $real = $row[0];
-      $x++;
-      $json_output .= '['.$stamp.','.$real.']';
-      if ($x-1 != $count) {
-        $json_output .= ',';
-      }
-    }
-    $json_output .= ']';
-    file_put_contents('../'.$public_directory.'/data/voters.json', $json_output);
-    //End of chart data updating
-  
     $end_time = time();
     $took = $end_time - $start_time;
     $time_sleep = 60-$took;
@@ -185,4 +93,30 @@ while(1) {
     echo "Can't get data...";
   }
 }
+
+
+function AppendChartData($subdir,$value,$time,$name,$public_directory){
+  if (!$subdir) {
+    $real_path = realpath('../'.$public_directory.'/data').'/'.$name.'.json';
+  } else {
+    $real_path = realpath('../'.$public_directory.'/data/'.$subdir).'/'.$name.'.json';
+  }
+  $time = $time*1000;
+  if (file_exists($real_path)) {
+    $fh = fopen(realpath($real_path), 'r+');
+    $stat = fstat($fh);
+    ftruncate($fh, $stat['size']-1);
+    fclose($fh);
+    $fh = fopen(realpath($real_path), 'a+');
+    $data = ',['.$time.','.$value.']]';
+    fwrite($fh, $data);
+    fclose($fh);
+  } else {
+    $data = '[['.$time.','.$value.']]';
+    file_put_contents($real_path, $data);
+    chmod($real_path, 0664);
+  }
+}
+
+
 ?>
