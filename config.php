@@ -17,6 +17,7 @@ return array(
 	'withdraw_interval_in_sec' => '86400',
 	'secret' => 'passphrase1',
 	'secondSecret' => '',
-	'public_directory' => 'private'
+	'public_directory' => 'private',
+	'cap_balance' => '150000000000000'
 );
 ?>
