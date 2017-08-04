@@ -93,9 +93,10 @@ screen -dmS bestforger php daemon.php
 This script should be used along with trusted servers only via SSL.
 
 # Public API
-<b>Specified voter balance data for balance chart</b>
+<b>Specified voter balance data for balance chart, respectively entitled pool balance and network balance.</b>
 <pre>
 data/voters/ADDRESS.json
+data/voters/balance/ADDRESS.json
 </pre>
 <b>General data for charts</b>
 <pre>
@@ -103,6 +104,8 @@ data/approval.json
 data/balance.json
 data/rank.json
 data/voters.json
+data/reserve.json
+data/productivity.json
 </pre>
 <b>General pool info</b>
 <pre>
