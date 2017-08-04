@@ -5,6 +5,7 @@ $delegate = $config['delegate_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
 $protocol = $config['protocol'];
+$cap_balance = $config['cap_balance'];
 $df = 0;
 	
 while(1) {
@@ -101,6 +102,10 @@ while(1) {
 					//Count total power of users and add them to miners table if not added before
 					$address = $value['address'];
 					$balance = $value['balance'];
+					if ($balance > $cap_balance) {
+						echo "\nTCap balance[".$balance."] -> ".$cap_balance;
+						$balance = $cap_balance;
+					}
 					$total_voters_power = $total_voters_power + $balance;
 					$task = "INSERT INTO miners (address,balance) SELECT * FROM (SELECT '$address','0') AS tmp WHERE NOT EXISTS (SELECT * FROM miners WHERE address = '$address' LIMIT 1)";
 					$query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
@@ -124,6 +129,10 @@ while(1) {
 				foreach ($voters_array as $key => $value) {
 					$address = $value['address'];
 					$balance = $value['balance'];
+					if ($balance > $cap_balance) {
+						echo "\nCap balance[".$balance."] -> ".$cap_balance;
+						$balance = $cap_balance;
+					}
 					$total = $total_voters_power;
 					$precentage = $balance / $total;
 					$user_revenue = $precentage * $forged_block_revenue;
