@@ -1,7 +1,22 @@
 <?php
 
 
-function IsBalanceOkToWithdraw($mysqli_handle,$config){
+function IsBalanceOkToWithdraw($mysqli_handle,$config,$debug = true){
+	$balanceinlsk_p = getCurrentBalance($config,$debug);
+	$total = getCurrentDBUsersBalance($mysqli_handle,$debug);
+	if ($debug) {
+		echo "\n\nCalculated Profit for voters:".$total;
+		echo "\nCurrent owned wallet balance:".$balanceinlsk_p;
+	}
+	if ($balanceinlsk_p > $total) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function getCurrentBalance($config,$debug = true){
 	$m = new Memcached();
 	$m->addServer('localhost', 11211);
 	$lisk_host = $m->get('lisk_host');
@@ -18,6 +33,11 @@ function IsBalanceOkToWithdraw($mysqli_handle,$config){
 	$publicKey = $publicKey_json['account']['publicKey'];
 	$pool_balance = $publicKey_json['account']['balance'];
 	$balanceinlsk_p = floatval($pool_balance/100000000);
+	return $balanceinlsk_p;
+}
+
+
+function getCurrentDBUsersBalance($mysqli_handle,$debug = true){
 	$existQuery = "SELECT address,balance FROM miners WHERE balance!='0'";
 	$existResult = mysqli_query($mysqli_handle,$existQuery)or die("Database Error");
 	$total = 0;
@@ -25,16 +45,12 @@ function IsBalanceOkToWithdraw($mysqli_handle,$config){
 		$payer_adr = $row[0];
 		$balance = $row[1];
 		$balanceinlsk = floatval($balance/100000000);
-		echo "\n".$payer_adr.' -> '.$balanceinlsk;
+		if ($debug) {
+			echo "\n".$payer_adr.' -> '.$balanceinlsk;
+		}
 		$total = $total + $balanceinlsk;
 	}
-	echo "\n\nCalculated Profit for voters:".$total;
-	echo "\nCurrent owned wallet balance:".$balanceinlsk_p;
-	if ($balanceinlsk_p > $total) {
-		return true;
-	} else {
-		return false;
-	}
+	return $total;
 }
 
 

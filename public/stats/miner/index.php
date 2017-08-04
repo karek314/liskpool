@@ -2,9 +2,9 @@
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../../../config.php');
 require_once('../../../utils.php');
-             
+$fee = $config['pool_fee_payout_address'];
 $miner = $_GET['address'];
-if (!$miner) {
+if (!$miner || $miner == $fee) {
 	die('<!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->  
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
@@ -289,13 +289,20 @@ $row = mysqli_fetch_array($result);
 $balance = $row[0];
 $balanceinlsk = floatval($balance/100000000);
 
+$liskstats_task = "SELECT id FROM liskstats WHERE object = '$miner'";
+$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
+$lsid = mysqli_fetch_array($liskstats_result);
+$lsid = (string)$lsid[0];
+echo '<center>';
+if ($lsid != '') {
+  echo 'This account is currently Liskstats contributor. Additional revenue is granted.';
+}
 echo '<center>';
 echo '<a href="https://explorer.lisk.io/address/'.$miner.'" target="_blank"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$miner.'</b></div><div class="button-inside"><div class="inside-text"><font size="1.5">https://explorer.lisk.io/address/'.$miner.'</font></div></div></div></a>';
 echo '<a href="#"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$balanceinlsk.'</b></div><div class="button-inside"><div class="inside-text">Current Pending Balance</div></div></div></a>';
 echo '</center>';
-
-echo '<br><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading balance chart...</center></div>';
-
+echo '<br><font color="264348"><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading ThePool balance chart...</div>';
+echo '<br><font color="264348"><div id="container_balance_network"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading Lisk network balance chart...</div></center>';
 
 $existQuery = "SELECT balance,time,txid,fee FROM payout_history WHERE address='$miner' ORDER BY id DESC LIMIT 50;";
 $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
@@ -395,7 +402,7 @@ while ($row=mysqli_fetch_row($existResult)){
     </script>
     <script type="text/javascript">
 $(function () {
-    $.getJSON("/api/index.php?data=_miner_balance&range=max&rr=1&dtx='.$miner.'", function (data) {
+    $.getJSON("/data/voters/'.$miner.'.json", function (data) {
         $("#container_balance").highcharts("StockChart", {
             rangeSelector: {
             buttons: [{
@@ -438,15 +445,93 @@ $(function () {
                 type: "area"
             },
             title : {
-                text : "balance"
+                text : "Account balance on ThePool (LSK)"
             },
-
+            subtitle: {
+                text: "Entitled account balance after split"
+            },
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
                 showLastLabel: true
             },
-
+            colors: ["#000000", "#000000", "#000000"],
+            series : [{
+                name : "balance",
+                data : data,
+                threshold: null,
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get("rgba")]
+                    ]
+                },
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
+    $.getJSON("/data/voters/balance/'.$miner.'.json", function (data) {
+        $("#container_balance_network").highcharts("StockChart", {
+            rangeSelector: {
+            buttons: [{
+                type: "hour",
+                count: 1,
+                text: "1h"
+            },{
+                type: "hour",
+                count: 12,
+                text: "12h"
+            },{
+                type: "day",
+                count: 1,
+                text: "1d"
+            }, {
+                type: "week",
+                count: 1,
+                text: "1w"
+            }, {
+                type: "month",
+                count: 1,
+                text: "1m"
+            }, {
+                type: "month",
+                count: 6,
+                text: "6m"
+            }, {
+                type: "year",
+                count: 1,
+                text: "1y"
+            }, {
+                type: "all",
+                text: "All"
+            }],
+            selected: 1
+        },
+            chart: {
+                backgroundColor: "#F5F5F5",
+                polar: true,
+                type: "area"
+            },
+            title : {
+                text : "Account balance on Lisk network (LSK)"
+            },
+            subtitle: {
+                text: "Current balance on Lisk network account"
+            },
+            yAxis: {
+                reversed: false,
+                showFirstLabel: false,
+                showLastLabel: true
+            },
+            colors: ["#000000", "#000000", "#000000"],
             series : [{
                 name : "balance",
                 data : data,

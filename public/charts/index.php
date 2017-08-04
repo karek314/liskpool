@@ -80,6 +80,8 @@ echo '<!DOCTYPE html>
                         echo '<br><br><div id="container_rank"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading rank chart</center></div><br>';
                         echo '<br><br><div id="container_balance"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading balance chart</center></div><br>';
                         echo '<br><br><div id="container_miners"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading vote count chart</center></div><br>';
+                        echo '<br><br><div id="container_reserve"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading balance reserve chart</center></div><br>';
+                        echo '<br><br><div id="container_productivity"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading producitvity chart</center></div><br>';
                         echo '</div><!--//row-->
                     </div>
                 </div><!--//row-->
@@ -201,6 +203,9 @@ $(function () {
             title : {
                 text : "Community Approval (%)"
             },
+            subtitle: {
+                text: 'Approval in % of network tokens distribution'
+            },
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
@@ -211,7 +216,18 @@ $(function () {
                 name : "Community Approval (%)",
                 data : data,
                 threshold: null,
-                fillColor : "#26C281",
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
                 tooltip: {
                     valueDecimals: 2
                 }
@@ -221,6 +237,8 @@ $(function () {
     setTimeout(rank, 0);
     setTimeout(balance, 0);
     setTimeout(miners, 0);
+    setTimeout(reserve, 0);
+    setTimeout(productivity, 0);
 });
 
 function rank() {
@@ -274,7 +292,9 @@ function rank() {
             title : {
                 text : "Rank"
             },
-
+            subtitle: {
+                text: 'Delegate rank'
+            },
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
@@ -285,7 +305,18 @@ function rank() {
                 name : "Rank",
                 data : data,
                 threshold: null,
-                fillColor : "#26C281",
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
                 tooltip: {
                     valueDecimals: 2
                 }
@@ -346,7 +377,9 @@ function balance() {
             title : {
                 text : "Balance (LSK)"
             },
-
+            subtitle: {
+                text: 'Account balance'
+            },
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
@@ -357,7 +390,187 @@ function balance() {
                 name : "Balance (LSK)",
                 data : data,
                 threshold: null,
-                fillColor : "#26C281",
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
+
+};
+
+function reserve() {
+    $.getJSON("/data/reserve.json", function (data) {
+        $("#container_reserve").highcharts("StockChart", {
+            rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            },{
+                type: 'hour',
+                count: 12,
+                text: '12h'
+            },{
+                type: 'day',
+                count: 1,
+                text: '1d'
+            },{
+                type: 'day',
+                count: 3,
+                text: '3d'
+            }, {
+                type: 'week',
+                count: 1,
+                text: '1w'
+            }, {
+                type: 'month',
+                count: 1,
+                text: '1m'
+            }, {
+                type: 'month',
+                count: 6,
+                text: '6m'
+            }, {
+                type: 'year',
+                count: 1,
+                text: '1y'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
+            selected: 3
+        },
+            chart: {
+                backgroundColor: "#F5F5F5",
+                polar: true,
+                type: "area"
+            },
+            colors: ["#000000", "#000000", "#000000"],
+            title : {
+                text : "Reserve balance (LSK)"
+            },
+            subtitle: {
+                text: 'LSK waiting for split and leftover balance reserve'
+            },
+            yAxis: {
+                reversed: false,
+                showFirstLabel: false,
+                showLastLabel: true
+            },
+            series : [{
+                name : "Reserve balance (LSK)",
+                data : data,
+                threshold: null,
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
+
+};
+
+function productivity() {
+    $.getJSON("/data/productivity.json", function (data) {
+        $("#container_productivity").highcharts("StockChart", {
+            rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            },{
+                type: 'hour',
+                count: 12,
+                text: '12h'
+            },{
+                type: 'day',
+                count: 1,
+                text: '1d'
+            },{
+                type: 'day',
+                count: 3,
+                text: '3d'
+            }, {
+                type: 'week',
+                count: 1,
+                text: '1w'
+            }, {
+                type: 'month',
+                count: 1,
+                text: '1m'
+            }, {
+                type: 'month',
+                count: 6,
+                text: '6m'
+            }, {
+                type: 'year',
+                count: 1,
+                text: '1y'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
+            selected: 3
+        },
+            chart: {
+                backgroundColor: "#F5F5F5",
+                polar: true,
+                type: "area"
+            },
+            colors: ["#000000", "#000000", "#000000"],
+            title : {
+                text : "Forged blocks (% lifetime)"
+            },
+            subtitle: {
+                text: 'Lifetime % productivity'
+            },
+            yAxis: {
+                reversed: false,
+                showFirstLabel: false,
+                showLastLabel: true
+            },
+
+            series : [{
+                name : "Forged blocks (% lifetime)",
+                data : data,
+                threshold: null,
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
                 tooltip: {
                     valueDecimals: 2
                 }
@@ -418,7 +631,9 @@ function miners() {
             title : {
                 text : "Votes Count"
             },
-
+            subtitle: {
+                text: 'Count of votes supporting this delegate'
+            },
             yAxis: {
                 reversed: false,
                 showFirstLabel: false,
@@ -429,7 +644,18 @@ function miners() {
                 name : "Votes Count",
                 data : data,
                 threshold: null,
-                fillColor : "#26C281",
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                    ]
+                },
                 tooltip: {
                     valueDecimals: 2
                 }

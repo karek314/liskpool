@@ -7,46 +7,30 @@ $lisk_host = $m->get('lisk_host');
 $lisk_port = $m->get('lisk_port');
 $delegate = $config['delegate_address'];
 $protocol = $config['protocol'];
+$fee = $config['pool_fee_payout_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
 $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
-$task = "SELECT count(1) FROM blocks";
-$response = mysqli_query($mysqli,$task)or die("Database Error");
-$row = mysqli_fetch_row($response);
-$minedblocks = $row[0];
+$minedblocks = $m->get('minedblocks');
 
-  
-//Retrive Public Key
-$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-$result1 = curl_exec($ch1);
-$publicKey_json = json_decode($result1, true); 
-$publicKey = $publicKey_json['account']['publicKey'];
-$pool_balance = $publicKey_json['account']['balance'];
-$username = $publicKey_json['account']['username'];
+//get cached delegate acc
+$delegate_account = $m->get('delegate_account');
+$publicKey = $delegate_account['account']['publicKey'];
+$pool_balance = $delegate_account['account']['balance'];
+$username = $delegate_account['account']['username'];
 $balanceinlsk_p = floatval($pool_balance/100000000);
 
-
-//get forging delegate info
-$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/get/?publicKey='.$publicKey);
-curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-$result1 = curl_exec($ch1);
-$d_data = json_decode($result1, true); 
+//get cached d_data
+$d_data = $m->get('d_data');
 $d_data = $d_data['delegate'];
 $rank = $d_data['rate'];
 $approval = $d_data['approval'];
 $productivity = $d_data['productivity'];
 $missedblocks = $d_data['missedblocks'];
 
-//Retrive voters
-$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/voters?publicKey='.$publicKey);
-curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-$result1 = curl_exec($ch1);
-$voters = json_decode($result1, true); 
-$voters_array = $voters['accounts'];
+//get cached voters
+$d_voters = $m->get('d_voters');
+$voters_array = $d_voters['accounts'];
 $voters_count = count($voters_array);
 $total_voters_power = 0;
 foreach ($voters_array as $key => $value) {
@@ -56,21 +40,23 @@ foreach ($voters_array as $key => $value) {
   $username = $value['username'];
   $address = $value['address'];
   $total_voters_power = $total_voters_power + $balance;
-  if (!$username) {
-    $new_array[] = '&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://explorer.lisk.io/address/'.$address.'">'.$address.'</a> balance:'.$balanceinlsk.' LISK';
-  } else {
-    $new_array[] = '&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://explorer.lisk.io/address/'.$address.'">'.$address.'</a> with name: <b>'.$username.'</b> balance:'.$balanceinlsk.' LISK';
+  if ($address != $fee) {
+    if (!$username) {
+      $new_array[] = '&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://explorer.lisk.io/address/'.$address.'">'.$address.'</a> balance: <b>'.number_format($balanceinlsk, 8).'</b> LSK';
+    } else {
+      $new_array[] = '&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://explorer.lisk.io/address/'.$address.'">'.$address.'</a> with name: <b>'.$username.'</b> balance: <b>'.$balanceinlsk.'</b> LSK';
+    }
   }
 }
 
-
-$existQuery = "SELECT balance,address FROM miners ORDER BY balance DESC LIMIT 2000;";
-$existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
-while ($row=mysqli_fetch_row($existResult)){
-    $balance = $row[0];
-    $address = $row[1];
-    $balanceinlsk = floatval($balance/100000000);
-    $activeminers = $activeminers.'<br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/stats/miner/?address='.$address.'">'.$address.'</a> forged:'.$balanceinlsk.' LISK';
+$forged_voters = $m->get('forged_voters');
+foreach ($forged_voters as $key => $value) {
+    $balance = $value['balance'];
+    $address = $value['address'];
+    if ($address != $fee) {
+      $balanceinlsk = floatval($balance/100000000);
+      $activeminers = $activeminers.'<br>&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="/stats/miner/?address='.$address.'">'.$address.'</a> forged: <b>'.number_format($balanceinlsk, 8).'</b> LSK';
+    }
 }
 
 echo '<!DOCTYPE html>
@@ -239,17 +225,15 @@ echo '<!DOCTYPE html>
     echo '<br>'.$value;
   }
   echo '<br><br><b>Forged Blocks (last 50):</b><br>';
-  $existQuery = "SELECT blockid FROM blocks ORDER BY id DESC LIMIT 50;";
-  $existResultMinersss = mysqli_query($mysqli,$existQuery)or die("Database Error");
-  while ($row=mysqli_fetch_row($existResultMinersss)){
-      echo '<a href="https://login.lisk.io/api/blocks?height='.$row[0].'" target="_blank">'.$row[0].'</a>, ';
-      $xd++;
-      if ($xd == 9) {
+  $last_blocks = $m->get('last_blocks');
+  foreach ($last_blocks as $key => $value) {
+      echo '<a href="https://login.lisk.io/api/blocks?height='.$value.'" target="_blank">'.$value.'</a>, ';
+      $newline_counter++;
+      if ($newline_counter == 9) {
         echo '<br>';
-        $xd = 0;
+        $newline_counter = 0;
       }
   }
-
   echo '        <br><br>
             <!--//row-->
                     </div>
