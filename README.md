@@ -40,7 +40,9 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 'fixed_withdraw_fee' => '0.1',    //<- Fixed Withdraw fee in LISK
 'withdraw_interval_in_sec' => '43200',   //<- Withdraw script interval represented in seconds
 'secret' => 'passphrase1',    //<- Main passphrase the same your as in your forging delegate
-'secondSecret' => 'passphrase2' //<- Second passphrase, if you dont have one leave it empty ex. ""
+'secondSecret' => 'passphrase2', //<- Second passphrase, if you dont have one leave it empty ex. ""
+'public_directory' => 'private', //<- directory name of public dir
+'cap_balance' => '150000000000000' //balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
 ```
 
 # Usage
