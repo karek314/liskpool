@@ -28,7 +28,7 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 
 'host' => 'localhost',    //<- dont change if mariadb is running on the same machine
 'username' => 'root',     //<- Database user
-'password' => 'SQL_PASSWORD',  //<- Database Password
+'password' => 'dbpass',  //<- Database Password
 'bdd' => 'lisk',    //<- Database Name
 'lisk_host' => $lisk_nodes,
 'lisk_port' => $lisk_ports,
