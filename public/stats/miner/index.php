@@ -301,9 +301,36 @@ echo '<center>';
 echo '<a href="https://explorer.lisk.io/address/'.$miner.'" target="_blank"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$miner.'</b></div><div class="button-inside"><div class="inside-text"><font size="1.5">https://explorer.lisk.io/address/'.$miner.'</font></div></div></div></a>';
 echo '<a href="#"><div class="button-fill grey" style="width:94%"><div class="button-text">'.$balanceinlsk.'</b></div><div class="button-inside"><div class="inside-text">Current Pending Balance</div></div></div></a>';
 echo '</center>';
-echo '<br><font color="264348"><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading ThePool balance chart...</div>';
-echo '<br><font color="264348"><div id="container_balance_network"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading Lisk network balance chart...</div></center>';
-
+if (file_exists('../../data/voters/'.$miner.'.json')) {
+  $tmp = file_get_contents('../../data/voters/'.$miner.'.json');
+  if (strlen($tmp)>5) {
+    echo '<br><font color="264348"><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading ThePool balance chart...</div>';
+  } else {
+    balanceChartError();
+  }
+} else {
+  balanceChartError();
+}
+if (file_exists('../../data/voters/balance/'.$miner.'.json')) {
+  $tmp = file_get_contents('../../data/voters/balance/'.$miner.'.json');
+  if (strlen($tmp)>5) {
+  echo '<br><font color="264348"><div id="container_balance_network"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading Lisk network balance chart...</div></center>';
+  } else {
+    networkBalanceChartError();
+  }
+} else {
+  networkBalanceChartError();
+}
+if (file_exists('../../data/voters/withdraw/'.$miner.'.json')) {
+  $tmp = file_get_contents('../../data/voters/withdraw/'.$miner.'.json');
+  if (strlen($tmp)>5) {
+  echo '<br><font color="264348"><div id="container_balance_withdraw"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading withdraw amount chart...</div></center>';
+  } else {
+    withdrawChartError();
+  }
+} else {
+  withdrawChartError();
+}
 $existQuery = "SELECT balance,time,txid,fee FROM payout_history WHERE address='$miner' ORDER BY id DESC LIMIT 50;";
 $existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
 
@@ -457,7 +484,7 @@ $(function () {
             },
             colors: ["#000000", "#000000", "#000000"],
             series : [{
-                name : "balance",
+                name : "Balance (LSK)",
                 data : data,
                 threshold: null,
                 fillColor : {
@@ -533,7 +560,83 @@ $(function () {
             },
             colors: ["#000000", "#000000", "#000000"],
             series : [{
-                name : "balance",
+                name : "Balance (LSK)",
+                data : data,
+                threshold: null,
+                fillColor : {
+                    linearGradient : {
+                        x1: 0,
+                        y1: 1,
+                        x2: 0,
+                        y2: 0
+                    },
+                    stops : [
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get("rgba")]
+                    ]
+                },
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
+    $.getJSON("/data/voters/withdraw/'.$miner.'.json", function (data) {
+        $("#container_balance_withdraw").highcharts("StockChart", {
+            rangeSelector: {
+            buttons: [{
+                type: "hour",
+                count: 1,
+                text: "1h"
+            },{
+                type: "hour",
+                count: 12,
+                text: "12h"
+            },{
+                type: "day",
+                count: 1,
+                text: "1d"
+            }, {
+                type: "week",
+                count: 1,
+                text: "1w"
+            }, {
+                type: "month",
+                count: 1,
+                text: "1m"
+            }, {
+                type: "month",
+                count: 6,
+                text: "6m"
+            }, {
+                type: "year",
+                count: 1,
+                text: "1y"
+            }, {
+                type: "all",
+                text: "All"
+            }],
+            selected: 1
+        },
+            chart: {
+                backgroundColor: "#F5F5F5",
+                polar: true,
+                type: "area"
+            },
+            title : {
+                text : "Amount of LSK on withdraw"
+            },
+            subtitle: {
+                text: "Amount of LSK sent from pool to your account"
+            },
+            yAxis: {
+                reversed: false,
+                showFirstLabel: false,
+                showLastLabel: true
+            },
+            colors: ["#000000", "#000000", "#000000"],
+            series : [{
+                name : "Amount (LSK)",
                 data : data,
                 threshold: null,
                 fillColor : {
@@ -568,4 +671,13 @@ function zip(a, b) {
 </body>
 </html>
 ';
+function balanceChartError(){
+  echo '<br><font color="264348"><br><center>This account is no longer voting for Thepool.io, hence balance chart will not be displayed. There is no data to create chart. If you wish you can vote for us again and make sure account balance is more than 0, then all charts will appear shortly after!</center>';
+}
+function networkBalanceChartError(){
+  echo '<br><font color="264348"><br><center>This account is no longer voting for Thepool.io, hence network balance chart will not be displayed. This account was not supporting Thepool.io at time when network balance chart was added.</center>';
+}
+function withdrawChartError(){
+  echo '<br><font color="264348"><br><center>There was no withdraw yet for this account with this feature, hence withdraw amount chart will not be displayed.</center>';
+}
 ?>

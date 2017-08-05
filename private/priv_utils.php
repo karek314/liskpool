@@ -54,4 +54,28 @@ function getCurrentDBUsersBalance($mysqli_handle,$debug = true){
 }
 
 
+function AppendChartData($subdir,$value,$time,$name,$public_directory){
+  if (!$subdir) {
+    $real_path = realpath('../'.$public_directory.'/data').'/'.$name.'.json';
+  } else {
+    $real_path = realpath('../'.$public_directory.'/data/'.$subdir).'/'.$name.'.json';
+  }
+  $time = $time*1000;
+  if (file_exists($real_path)) {
+    $fh = fopen(realpath($real_path), 'r+');
+    $stat = fstat($fh);
+    ftruncate($fh, $stat['size']-1);
+    fclose($fh);
+    $fh = fopen(realpath($real_path), 'a+');
+    $data = ',['.$time.','.$value.']]';
+    fwrite($fh, $data);
+    fclose($fh);
+  } else {
+    $data = '[['.$time.','.$value.']]';
+    file_put_contents($real_path, $data);
+    chmod($real_path, 0664);
+  }
+}
+
+
 ?>

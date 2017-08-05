@@ -11,6 +11,7 @@ $secret2 = $config['secondSecret'];
 $protocol = $config['protocol'];
 $lisk_host = $config['lisk_host'][0];
 $lisk_port = $config['lisk_port'][0];
+$public_directory = $config['public_directory'];
 
 while(1){
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
@@ -30,13 +31,15 @@ while(1){
 			echo "\n-------------------------------------------";
 			echo "\n".$payer_adr.' -> '.$balanceinlsk;
 			if ($balanceinlsk > $payout_threshold) {
-				$deduced_by_fee = $balanceinlsk - $fixed_withdraw_fee;
-				$deduced_by_fee = $deduced_by_fee * 100000000;
+				$deduced_by_fee_h = $balanceinlsk - $fixed_withdraw_fee;
+				$deduced_by_fee = $deduced_by_fee_h * 100000000;
 				if (!$secret2) {
 					$data = array("secret" => $secret1, "amount" => $deduced_by_fee, "recipientId" => $payer_adr, "publicKey" => $publicKey); 
 				} else {
 					$data = array("secret" => $secret1, "amount" => $deduced_by_fee, "recipientId" => $payer_adr, "publicKey" => $publicKey, "secondSecret" => $secret2);
 				}
+				$cur_time = time();
+				AppendChartData('voters/withdraw',$deduced_by_fee_h,$cur_time,$payer_adr,$public_directory);
 				$data_string = json_encode($data);  
 				$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/transactions');                                                                      
 				curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "PUT");              
