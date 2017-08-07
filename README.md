@@ -12,9 +12,15 @@ This is first and fully open-sourced Lisk delegate forging pool (also known as d
 Only <b>public</b> directory must be served with webserver. While <b>config.php</b> and <b>private</b> cannot be served.
  
 # Installation
-<pre>
+Liskpool now fully relies on [Lisk-PHP](https://github.com/karek314/lisk-php) to interact with Lisk node, including transaction signing.
+```sh
+cd liskpool
+git submodule update --init --recursive
+cd lisk-php
+bash setup.sh
+cd ..
 apt-get install nginx mariadb-server memcached php-memcached php php-curl
-</pre>
+```
 Setup your mysql server, nginx and import database scheme <pre>lisk_pool_scheme_db.sql</pre>
 
 Navigate to config.php
@@ -79,7 +85,6 @@ screen -x processing
 ## Forging productivity
 Optionally you can use [lisk-best-forger](https://github.com/karek314/lisk-best-forger) background script to improve forging productivity.
 <pre>
-git submodule update --init --recursive
 cd private/forging
 nano config.php
 </pre>
