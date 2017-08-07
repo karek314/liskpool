@@ -1,3 +1,6 @@
 [submodule "private/forging"]
 	path = private/forging
 	url = https://github.com/karek314/lisk-best-forger
+[submodule "lisk-php"]
+	path = lisk-php
+	url = https://github.com/karek314/lisk-php

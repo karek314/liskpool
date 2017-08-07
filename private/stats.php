@@ -1,6 +1,7 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE & ~E_WARNING);
 require_once('priv_utils.php');
+require_once('../lisk-php/main.php');
 $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
@@ -43,31 +44,19 @@ while(1) {
   }
   $m->set('last_blocks', $last_blocks, 3600*365);
   //Retrive Public Key
-  $ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-  curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-  curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-  $result1 = curl_exec($ch1);
-  $publicKey_json = json_decode($result1, true);
-  $m->set('delegate_account', $publicKey_json, 3600*365);
-  $publicKey = $publicKey_json['account']['publicKey'];
-  $pool_balance = $publicKey_json['account']['balance'];
+  $json = AccountForAddress($delegate,$server);
+  $m->set('delegate_account', $json, 3600*365);
+  $publicKey = $json['account']['publicKey'];
+  $pool_balance = $json['account']['balance'];
   //get forging delegate info
-  $ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/get/?publicKey='.$publicKey);
-  curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-  curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-  $result1 = curl_exec($ch1);
-  $d_data = json_decode($result1, true); 
+  $d_data = GetDelegateInfo($publicKey,$server);
   $m->set('d_data', $d_data, 3600*365);
   $d_data = $d_data['delegate'];
   $rank = $d_data['rate'];
   $approval = $d_data['approval'];
   $pool_productivity = $d_data['productivity'];
   //Retrive voters
-  $ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/voters?publicKey='.$publicKey);
-  curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-  curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-  $result1 = curl_exec($ch1);
-  $voters = json_decode($result1, true);
+  $voters = GetVotersFor($publicKey,$server);
   $m->set('d_voters', $voters, 3600*365);
   $voters_array = $voters['accounts'];
   $voters_count = count($voters_array);
@@ -96,15 +85,9 @@ while(1) {
     }
     if ($isPayable) {
       if (isset($cur_voters["'$object'"])) {
-      } else {
-        $ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$object);                                                                      
-        curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-        curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT, 3); 
-        curl_setopt($ch1, CURLOPT_TIMEOUT, 3);    
-        $result1 = curl_exec($ch1);
-        if (strlen($result1)>10) {
-          $lscon = json_decode($result1, true);
+      } else {  
+        $lscon = AccountForAddress($object,$server);
+        if ($lscon) {
           $lscon_balance = $lscon['account']['balance'];
           $balanceinlsk = floatval($lscon_balance/100000000);
           AppendChartData('voters/balance',$balanceinlsk,$cur_time,$object,$public_directory);
@@ -137,7 +120,7 @@ while(1) {
         AppendChartData('voters',$balanceinlsk,$cur_time,$voter_address,$public_directory);
       }
     }
-    $pool_lsk_reserve = getCurrentBalance($config,false)-getCurrentDBUsersBalance($mysqli,false);
+    $pool_lsk_reserve = getCurrentBalance($delegate,$server,false)-getCurrentDBUsersBalance($mysqli,false);
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();

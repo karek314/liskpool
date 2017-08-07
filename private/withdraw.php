@@ -2,6 +2,7 @@
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../config.php');
 require_once('priv_utils.php');
+require_once('../lisk-php/main.php');
 $payout_threshold = $config['payout_threshold'];
 $withdraw_interval_in_sec = $config['withdraw_interval_in_sec'];
 $fixed_withdraw_fee = $config['fixed_withdraw_fee'];
@@ -9,19 +10,17 @@ $delegate = $config['delegate_address'];
 $secret1 = $config['secret'];
 $secret2 = $config['secondSecret'];
 $protocol = $config['protocol'];
-$lisk_host = $config['lisk_host'][0];
-$lisk_port = $config['lisk_port'][0];
 $public_directory = $config['public_directory'];
 
 while(1){
+	$m = new Memcached();
+  	$m->addServer('localhost', 11211);
+  	$lisk_host = $m->get('lisk_host');
+  	$lisk_port = $m->get('lisk_port');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
-	if (IsBalanceOkToWithdraw($mysqli,$config)) {
-		$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-  		curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-  		curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-  		$result1 = curl_exec($ch1);
-  		$publicKey_json = json_decode($result1, true); 
-  		$publicKey = $publicKey_json['account']['publicKey'];
+	if (IsBalanceOkToWithdraw($mysqli,$server,$delegate)) {
+  		$json = AccountForAddress($delegate,$server);
+  		$publicKey = $json['account']['publicKey'];
 		$existQuery = "SELECT address,balance FROM miners WHERE balance!='0'";
 		$existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
 		while ($row=mysqli_fetch_row($existResult)){
@@ -34,27 +33,16 @@ while(1){
 				$deduced_by_fee_h = $balanceinlsk - $fixed_withdraw_fee;
 				$deduced_by_fee = $deduced_by_fee_h * 100000000;
 				if (!$secret2) {
-					$data = array("secret" => $secret1, "amount" => $deduced_by_fee, "recipientId" => $payer_adr, "publicKey" => $publicKey); 
+					$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, false, false, -10);
 				} else {
-					$data = array("secret" => $secret1, "amount" => $deduced_by_fee, "recipientId" => $payer_adr, "publicKey" => $publicKey, "secondSecret" => $secret2);
+					$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, $secret2, false, -10);
 				}
-				$cur_time = time();
-				AppendChartData('voters/withdraw',$deduced_by_fee_h,$cur_time,$payer_adr,$public_directory);
-				$data_string = json_encode($data);  
-				$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/transactions');                                                                      
-				curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "PUT");              
-				curl_setopt($ch1, CURLOPT_POSTFIELDS, $data_string);                                                                        
-				curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch1, CURLOPT_HTTPHEADER, array(                                                                          
-    				'Content-Type: application/json',                                                                                
-    				'Content-Length: ' . strlen($data_string))                                                                       
-				);  
-				$result1 = curl_exec($ch1);
-				$json_arr = json_decode($result1, true); 
-				$txid = $json_arr['transactionId'];
-				print_r($result1);
+				$tx_resp = SendTransaction(json_encode($tx),$server);
+				$txid = $tx_resp['transactionId'];
+				echo "\n".json_encode($tx_resp);
 				if ($txid) {
 					$timestamp = time();
+					AppendChartData('voters/withdraw',$deduced_by_fee_h,$timestamp,$payer_adr,$public_directory);
 					$tas22k = 'INSERT INTO payout_history (address, balance, time, txid, fee) VALUES ("'.$payer_adr.'", "'.$balance.'", "'.$timestamp.'", "'.$txid.'", "'.$fixed_withdraw_fee.'")';
 					$query = mysqli_query($mysqli,$tas22k) or die("Database Error");
 					$task = "UPDATE miners SET balance='0' WHERE address='$payer_adr';";	

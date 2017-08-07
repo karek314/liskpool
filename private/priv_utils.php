@@ -1,8 +1,8 @@
 <?php
 
 
-function IsBalanceOkToWithdraw($mysqli_handle,$config,$debug = true){
-	$balanceinlsk_p = getCurrentBalance($config,$debug);
+function IsBalanceOkToWithdraw($mysqli_handle,$server,$delegate,$debug = true){
+	$balanceinlsk_p = getCurrentBalance($delegate,$server,$debug);
 	$total = getCurrentDBUsersBalance($mysqli_handle,$debug);
 	if ($debug) {
 		echo "\n\nCalculated Profit for voters:".$total;
@@ -16,22 +16,9 @@ function IsBalanceOkToWithdraw($mysqli_handle,$config,$debug = true){
 }
 
 
-function getCurrentBalance($config,$debug = true){
-	$m = new Memcached();
-	$m->addServer('localhost', 11211);
-	$lisk_host = $m->get('lisk_host');
-	$lisk_port = $m->get('lisk_port');
-	$delegate = $config['delegate_address'];
-	$pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
-	$pool_fee_payout_address = $config['pool_fee_payout_address'];
-	$protocol = $config['protocol'];
-	$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-	curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-	$result1 = curl_exec($ch1);
-	$publicKey_json = json_decode($result1, true); 
-	$publicKey = $publicKey_json['account']['publicKey'];
-	$pool_balance = $publicKey_json['account']['balance'];
+function getCurrentBalance($delegate,$server,$debug = true){
+	$json = AccountForAddress($delegate,$server); 
+	$pool_balance = $json['account']['balance'];
 	$balanceinlsk_p = floatval($pool_balance/100000000);
 	return $balanceinlsk_p;
 }

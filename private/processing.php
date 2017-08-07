@@ -1,6 +1,7 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../config.php');
+require_once('../lisk-php/main.php');
 $delegate = $config['delegate_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
@@ -20,22 +21,12 @@ while(1) {
 	$precentage = 0;
 	$user_revenue = 0;
 	$splitted = 0;
-	echo "\n";echo $df.":Getting last 100 blocks forged...\n";
+	echo "\n".$df.":Getting last 100 blocks forged...\n";
 	//Retrive Public Key
-	$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-	curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-	$result1 = curl_exec($ch1);
-	$publicKey_json = json_decode($result1, true); 
-	$publicKey = $publicKey_json['account']['publicKey'];
+	$json = AccountForAddress($delegate,$server);
+	$publicKey = $json['account']['publicKey'];
 	//Retrive last forged block
-	$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/blocks/?generatorPublicKey='.$publicKey.'&limit=100&offset=0&orderBy=height:desc');
-	curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-	curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT ,7); 
-  	curl_setopt($ch1, CURLOPT_TIMEOUT, 7);     
-	$result1 = curl_exec($ch1);
-	$forged_block_json = json_decode($result1, true); 
+	$forged_block_json = GetBlocksBy($publicKey,$server); 
 	$block_jarray = $forged_block_json['blocks'];
 
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
@@ -56,11 +47,7 @@ while(1) {
 			if ($forged_block_revenue != 0) {
 				echo "\nForged block at height:".$forged_block;
 				//Retrive current voters
-				$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/voters?publicKey='.$publicKey);
-				curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-				curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-				$result1 = curl_exec($ch1);
-				$voters = json_decode($result1, true); 
+				$voters = GetVotersFor($publicKey,$server);
 				$voters_array = $voters['accounts'];
 
 				//Add Likstats contributors

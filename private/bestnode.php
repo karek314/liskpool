@@ -1,5 +1,6 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE & ~E_WARNING);
+require_once('../lisk-php/main.php');
 $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
@@ -26,7 +27,8 @@ while(1) {
       $curr_host = $config_lisk_host[$i];
       $curr_port = $config_lisk_port[$i];
       echo "\n[".$i."]Checking node: ".$curr_host.':'.$curr_port;
-      $block = checkLatestBlock($protocol.'://'.$curr_host.':'.$curr_port.'/api/loader/status/sync');
+      $custom = $protocol.'://'.$curr_host.':'.$curr_port.'/';
+      $block = NodeStatus($custom);
       array_push($heights, $block["height"]);
       echo "\nHeight: ".$block["height"];
     }
@@ -38,6 +40,8 @@ while(1) {
     echo "\nBest node: ".$best_host.':'.$best_port;
     $m->set('lisk_host', $best_host, 3600*365);
     $m->set('lisk_port', $best_port, 3600*365);
+    $m->set('lisk_protocol', $protocol, 3600*365);
+    
     $lisk_host_tmp = $m->get('lisk_host');
     $lisk_port_tmp = $m->get('lisk_port');
     echo "\nCurrent lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp;
@@ -45,6 +49,7 @@ while(1) {
     echo "\nNothing to do here... Setting only one as best";
     $m->set('lisk_host', $config_lisk_host[0], 3600*365);
     $m->set('lisk_port', $config_lisk_port[0], 3600*365);
+    $m->set('lisk_protocol', $protocol, 3600*365);
     $lisk_host_tmp = $m->get('lisk_host');
     $lisk_port_tmp = $m->get('lisk_port');
     echo "\nCurrent lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp;
@@ -58,18 +63,6 @@ while(1) {
   }
   echo "\n".'Took:'.$took.' sleep:'.$time_sleep;
   sleep($time_sleep);
-}
-
-
-function checkLatestBlock($url){
-  $ch1 = curl_init($url);                                                                      
-  curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-  curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch1, CURLOPT_CONNECTTIMEOUT ,3); 
-  curl_setopt($ch1, CURLOPT_TIMEOUT, 3);    
-  $result1 = curl_exec($ch1);
-  $jsondict = json_decode($result1, true); 
-  return $jsondict;
 }
 
 
