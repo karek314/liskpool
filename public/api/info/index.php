@@ -13,22 +13,14 @@ $response = mysqli_query($mysqli,$task)or die("Database Error");
 $row = mysqli_fetch_row($response);
 $forged_blocks = $row[0];
 //Retrive Public Key
-$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/accounts?address='.$delegate);                                                                      
-curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-$result1 = curl_exec($ch1);
-$publicKey_json = json_decode($result1, true); 
-$publicKey = $publicKey_json['account']['publicKey'];
-$pool_balance = $publicKey_json['account']['balance'];
-$username = $publicKey_json['account']['username'];
+$delegate_account = $m->get('delegate_account');
+$publicKey = $delegate_account['account']['publicKey'];
+$pool_balance = $delegate_account['account']['balance'];
+$username = $delegate_account['account']['username'];
 $balanceinlsk_p = floatval($pool_balance/100000000);
 
 //get forging delegate info
-$ch1 = curl_init($protocol.'://'.$lisk_host.':'.$lisk_port.'/api/delegates/get/?publicKey='.$publicKey);
-curl_setopt($ch1, CURLOPT_CUSTOMREQUEST, "GET");                                                                                      
-curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);     
-$result1 = curl_exec($ch1);
-$d_data = json_decode($result1, true); 
+$d_data = $m->get('d_data');
 $d_data = $d_data['delegate'];
 $rank = $d_data['rate'];
 $approval = $d_data['approval'];
