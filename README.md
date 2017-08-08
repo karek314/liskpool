@@ -26,7 +26,7 @@ Setup your mysql server, nginx and import database scheme <pre>lisk_pool_scheme_
 Navigate to config.php
 
 <b>lisk_nodes & lisk_ports</b>
-You can add here more independent nodes, first one should be localhost, withdraws will be processed only from first node specified here for security reasons as passphrase are being sent out currently to specified node. Other nodes are used to determine node which is currently at latest height to keep pool updated with most recent state of network.
+You can add here more independent nodes which are used to determine node which is currently at latest height to keep pool updated with most recent state of network.
 
 ```php
 $lisk_nodes = array(0 => 'localhost',1 => '123.123.123.123');
