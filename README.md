@@ -61,7 +61,7 @@ Navigate to <b>/private/</b> directory and start background scripts:<br>
 <pre>screen -dmS processing php processing.php</pre>
 <br><b>Updating charts</b> - this script updates data to keep charts up to date.
 <pre>screen -dmS stats php stats.php</pre>
-<br><b>Withdraw script</b> - this script withdraws revenue as defined in config.
+<br><b>Withdraw script</b> - this script withdraws revenue as defined in config. It features multithreaded withdraw processing if your cpu has multiple cores or supports htt. Technically, it's more like forking rather threading, however it was simplier to implement and save time building php with zts enabled.
 <pre>screen -dmS withdraw php withdraw.php</pre>
 <br>If you want to support Liskstats contributors and Liskstats itself use also script below. This script connects to Liskstats.net and retrieve all current contributors. Every contributor is added to split with "fake" votepower which is defined in <b>processing.php</b>.
 <pre>screen -dmS liskstats php liskstats.php</pre>
