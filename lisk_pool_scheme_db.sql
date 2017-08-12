@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 02, 2017 at 10:24 AM
--- Server version: 10.0.29-MariaDB-0ubuntu0.16.04.1
--- PHP Version: 7.0.18-0ubuntu0.16.04.1
+-- Generation Time: Aug 12, 2017 at 09:55 PM
+-- Server version: 10.0.31-MariaDB-0ubuntu0.16.04.2
+-- PHP Version: 7.0.22-0ubuntu0.16.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `lisk_scheme`
+-- Database: `lisk_template`
 --
 
 -- --------------------------------------------------------
@@ -83,7 +83,8 @@ ALTER TABLE `blocks`
 -- Indexes for table `liskstats`
 --
 ALTER TABLE `liskstats`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `object` (`object`);
 
 --
 -- Indexes for table `miners`

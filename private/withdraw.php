@@ -78,7 +78,7 @@ while(1){
 			$txleft = $txleft - $txleft;
 			clog("Txleft:".$txleft.", sent:".$btxleft,'withdraw');
 		} else {
-			clog("No withdraws has been made");
+			clog("No withdraws has been made",'withdraw');
 		}
 		clog("Sleeping for:".$withdraw_interval_in_sec." sec",'withdraw');
 		sleep($withdraw_interval_in_sec);
