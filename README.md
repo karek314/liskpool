@@ -122,6 +122,9 @@ api/info/
 api/info/forged/
 </pre>
 
+# Logs
+As soon any of background scripts will be excuted, <b>logs</b> directory will appear in in <b>private</b> directory. It will store all logs of all background scripts.
+
 # Migration from older version of pool
 In past all chart data was stored in database tables, however with millions of rows and cheap vps it could have been possible bottleneck with thousands of voters. If you are pool operator and you want to keep all statistics history.
 1. Stop all background scripts
