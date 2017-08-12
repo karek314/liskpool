@@ -1,6 +1,7 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../config.php');
+require_once('logging.php');
 require('wss/Client.php');
 use WebSocket\Client;
 
@@ -10,8 +11,12 @@ $client->send('{"emit":["ready"]}');
 $x=0;
 $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
 while (1) {
+  if (!$client->isConnected()) {
+    $client = new Client("ws://liskstats.net:3000/primus/?_primuscb=".$timestamp_ms."-0");
+    $client->send('{"emit":["ready"]}');
+  }
   if ($x > 3600) {
-    echo "\nCleaning everything (once per hour)";
+    clog("Cleaning everything (once per hour)",'liskstats');
     $task = "TRUNCATE TABLE `liskstats`";
     $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
     $x=0;
@@ -20,7 +25,7 @@ while (1) {
   if (isset($response['data'])) {
     if (isset($response['data']['id'])) { 
       $object = $response['data']['id'];
-      echo "\n".$object;
+      clog($object,'liskstats');
       $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
       $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
     }

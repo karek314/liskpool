@@ -1,6 +1,7 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE & ~E_WARNING);
 require_once('../lisk-php/main.php');
+require_once('logging.php');
 $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
@@ -18,41 +19,41 @@ while(1) {
   $m->addServer('localhost', 11211);
   $lisk_host = $m->get('lisk_host');
   $lisk_port = $m->get('lisk_port');
-  echo "\n/////////////////////////////////////////\nCurrent iteration: ".$df;
-  echo "\nCurrent lisk node: ".$lisk_host.':'.$lisk_port;
-  echo "\nCurrent nodes count definied in config: ".count($config_lisk_host);
+  clog("/////////////////////////////////////////\nCurrent iteration: ".$df,'bestnode');
+  clog("Current lisk node: ".$lisk_host.':'.$lisk_port,'bestnode');
+  clog("Current nodes count definied in config: ".count($config_lisk_host),'bestnode');
   if (count($config_lisk_host) > 1) {
     $heights = array();
     for ($i=0; $i < count($config_lisk_host); $i++) {
       $curr_host = $config_lisk_host[$i];
       $curr_port = $config_lisk_port[$i];
-      echo "\n[".$i."]Checking node: ".$curr_host.':'.$curr_port;
+      clog("[".$i."]Checking node: ".$curr_host.':'.$curr_port,'bestnode');
       $custom = $protocol.'://'.$curr_host.':'.$curr_port.'/';
       $block = NodeStatus($custom);
       array_push($heights, $block["height"]);
-      echo "\nHeight: ".$block["height"];
+      clog("Height: ".$block["height"],'bestnode');
     }
     $best_height = max($heights);
     $key = array_search($best_height, $heights);
-    echo "\nBest height: ".$best_height;
+    clog("Best height: ".$best_height,'bestnode');
     $best_host = $config_lisk_host[$key];
     $best_port = $config_lisk_port[$key];
-    echo "\nBest node: ".$best_host.':'.$best_port;
+    clog("Best node: ".$best_host.':'.$best_port,'bestnode');
     $m->set('lisk_host', $best_host, 3600*365);
     $m->set('lisk_port', $best_port, 3600*365);
     $m->set('lisk_protocol', $protocol, 3600*365);
     
     $lisk_host_tmp = $m->get('lisk_host');
     $lisk_port_tmp = $m->get('lisk_port');
-    echo "\nCurrent lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp;
+    clog("Current lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp,'bestnode');
   } else {
-    echo "\nNothing to do here... Setting only one as best";
+    clog("Nothing to do here... Setting only one as best",'bestnode');
     $m->set('lisk_host', $config_lisk_host[0], 3600*365);
     $m->set('lisk_port', $config_lisk_port[0], 3600*365);
     $m->set('lisk_protocol', $protocol, 3600*365);
     $lisk_host_tmp = $m->get('lisk_host');
     $lisk_port_tmp = $m->get('lisk_port');
-    echo "\nCurrent lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp;
+    clog("Current lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp,'bestnode');
   }
 
   $end_time = time();
@@ -61,7 +62,7 @@ while(1) {
   if ($time_sleep < 1) {
     $time_sleep = 1;
   }
-  echo "\n".'Took:'.$took.' sleep:'.$time_sleep;
+  clog('Took:'.$took.' sleep:'.$time_sleep,'bestnode');
   sleep($time_sleep);
 }
 

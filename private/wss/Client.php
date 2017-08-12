@@ -105,16 +105,12 @@ class Client extends Base {
     
     // Default headers (using lowercase for simpler array_merge below).
     $headers = array(
-      'Host'                  => 'sst-n2-c-nl.spotoption.com',
-      'User-Agent'            => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 22_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17',
-      'Connection'            => 'Upgrade',
-      'Upgrade'               => 'websocket',
-      'Origin'                => 'https://binary.nordfx.com',
-      'Pragma'                => 'no-cache',
-      'Cache-Control'         => 'no-cache',
-      'Sec-WebSocket-Key'     => $key,
-      'Sec-WebSocket-Version' => '13',
-      'Sec-WebSocket-Extensions' => 'x-webkit-deflate-frame'
+      'host'                  => $host . ":" . $port,
+      'user-agent'            => 'websocket-client-php',
+      'connection'            => 'Upgrade',
+      'upgrade'               => 'websocket',
+      'sec-websocket-key'     => $key,
+      'sec-websocket-version' => '13',
     );
 
     // Handle basic authentication.

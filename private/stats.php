@@ -2,6 +2,7 @@
 error_reporting(error_reporting() & ~E_NOTICE & ~E_WARNING);
 require_once('priv_utils.php');
 require_once('../lisk-php/main.php');
+require_once('logging.php');
 $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
@@ -17,7 +18,7 @@ while(1) {
   $lisk_port = $m->get('lisk_port');
   $df++;
   $start_time = time();
-  echo "\nFetching data...";
+  clog("Fetching data...",'stats');
   $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
   //Get forged blocks
   $task = "SELECT count(1) FROM blocks";
@@ -129,8 +130,8 @@ while(1) {
     if ($time_sleep < 1) {
       $time_sleep = 1;
     }
-    echo "\n[".$df."] Statistics Update\nTook -> ".$took."s\nActive voters -> ".$voters_count."\nApproval -> ".$approval."\nVotepower -> ".$total_voters_power." \nBalance -> ".$balanceinlsk_p."\nRank -> ".$rank."\nBalance Reserve -> ".$pool_lsk_reserve."\nProductivity -> ".$pool_productivity;
-    echo "\nSleeping ".$time_sleep."s...";
+    clog("[".$df."] Statistics Update\nTook -> ".$took."s\nActive voters -> ".$voters_count."\nApproval -> ".$approval."\nVotepower -> ".$total_voters_power." \nBalance -> ".$balanceinlsk_p."\nRank -> ".$rank."\nBalance Reserve -> ".$pool_lsk_reserve."\nProductivity -> ".$pool_productivity,'stats');
+    clog("Sleeping ".$time_sleep."s...",'stats');
     sleep($time_sleep);
   } else {
     //Can't get data, dont mess chart
@@ -141,7 +142,7 @@ while(1) {
       $time_sleep = 1;
     }
     sleep($time_sleep);
-    echo "Can't get data...";
+    clog("Can't get data...",'stats');
   }
 }
 ?>

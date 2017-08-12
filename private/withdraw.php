@@ -2,7 +2,10 @@
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../config.php');
 require_once('priv_utils.php');
+require_once('logging.php');
 require_once('../lisk-php/main.php');
+$thread_file = "php ".realpath(dirname(__FILE__))."/wthread.php";
+$threads = ((int)shell_exec("cat /proc/cpuinfo | grep processor | wc -l")*2)-1;
 $payout_threshold = $config['payout_threshold'];
 $withdraw_interval_in_sec = $config['withdraw_interval_in_sec'];
 $fixed_withdraw_fee = $config['fixed_withdraw_fee'];
@@ -18,6 +21,7 @@ while(1){
   	$lisk_host = $m->get('lisk_host');
   	$lisk_port = $m->get('lisk_port');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
+	$withdraw_array = array();
 	if (IsBalanceOkToWithdraw($mysqli,$server,$delegate)) {
   		$json = AccountForAddress($delegate,$server);
   		$publicKey = $json['account']['publicKey'];
@@ -27,42 +31,60 @@ while(1){
 			$payer_adr = $row[0];
 			$balance = $row[1];
 			$balanceinlsk = floatval($balance/100000000);
-			echo "\n-------------------------------------------";
-			echo "\n".$payer_adr.' -> '.$balanceinlsk;
+			clog("-------------------------------------------",'withdraw');
+			clog($payer_adr.' -> '.$balanceinlsk,'withdraw');
 			if ($balanceinlsk > $payout_threshold) {
-				$deduced_by_fee_h = $balanceinlsk - $fixed_withdraw_fee;
-				$deduced_by_fee = $deduced_by_fee_h * 100000000;
-				if (!$secret2) {
-					$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, false, false, -10);
-				} else {
-					$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, $secret2, false, -10);
-				}
-				$tx_resp = SendTransaction(json_encode($tx),$server);
-				$txid = $tx_resp['transactionId'];
-				echo "\n".json_encode($tx_resp);
-				if ($txid) {
-					$timestamp = time();
-					AppendChartData('voters/withdraw',$deduced_by_fee_h,$timestamp,$payer_adr,$public_directory);
-					$tas22k = 'INSERT INTO payout_history (address, balance, time, txid, fee) VALUES ("'.$payer_adr.'", "'.$balance.'", "'.$timestamp.'", "'.$txid.'", "'.$fixed_withdraw_fee.'")';
-					$query = mysqli_query($mysqli,$tas22k) or die("Database Error");
-					$task = "UPDATE miners SET balance='0' WHERE address='$payer_adr';";	
-					$query = mysqli_query($mysqli,$task) or die("Database Error");	
-					echo "\nWithdraw OK ->".$txid;
-				} else {
-					print_r($json_arr);
-					print_r($data);
-				}
-				usleep(100000);
-				$withdrawcount++;
+				clog("Adding to withdraw queue\n",'withdraw');
+				$withdraw_array[$payer_adr] = $balanceinlsk;
 			} else {
-				echo "\nNot exceeded threshold\n";
+				clog("Not exceeded threshold\n",'withdraw');
 			}
 		}
-		echo "\nSleeping for:".$withdraw_interval_in_sec." sec";
+		$wcount = count($withdraw_array);
+		$txleft = $wcount;
+		clog($wcount." eligible for withdraw",'withdraw');
+		$pipes = array();
+		foreach ($withdraw_array as $recipient => $balanceinlsk) {
+			$pcount = count($pipes);
+			if ($pcount < $threads || $txleft < $threads) {
+				clog("[".$pcount."]Creating withdraw thread for ".$recipient."->".$balanceinlsk,'withdraw');
+				$pipes[$pcount] = popen($thread_file." ".$recipient." ".$balanceinlsk, 'r');
+			} else {
+				clog("[".$pcount."]Creating withdraw thread for ".$recipient."->".$balanceinlsk,'withdraw');
+				$pipes[$pcount] = popen($thread_file." ".$recipient." ".$balanceinlsk, 'r');
+				for ($j=0; $j<$threads+1; ++$j) {
+					$response = stream_get_contents($pipes[$j]);
+					pclose($pipes[$j]);
+					clog("[".$j."]".$response,'withdraw');
+				}
+				if ($txleft < $threads) {
+					$btxleft = $txleft;
+					$txleft = $txleft - $txleft;
+				} else {
+					$btxleft = $threads+1;
+					$txleft = $txleft - ($threads+1);
+				}
+				clog("Txleft:".$txleft.", sent:".$btxleft,'withdraw');
+				$pipes = array();
+			}
+		}
+		if ($wcount > 0) {
+			for ($j=0; $j<$txleft; ++$j) {
+				$response = stream_get_contents($pipes[$j]);
+				pclose($pipes[$j]);
+				clog("[".$j."]".$response,'withdraw');
+			}
+			$btxleft = $txleft;
+			$txleft = $txleft - $txleft;
+			clog("Txleft:".$txleft.", sent:".$btxleft,'withdraw');
+		} else {
+			clog("No withdraws has been made");
+		}
+		clog("Sleeping for:".$withdraw_interval_in_sec." sec",'withdraw');
 		sleep($withdraw_interval_in_sec);
 	} else {
-		echo "\n\n!!! Incorrect - balance invalid !!!";
-		echo "\n!!! Can't withdraw, retrying after 30min !!!\n\n";
+		clog("\n!!! Incorrect - balance invalid !!!",'withdraw');
+		clog("!!! Can't withdraw, retrying after 30min !!!\n\n",'withdraw');
 		sleep(1800);
 	}
 }
