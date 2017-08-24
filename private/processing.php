@@ -48,6 +48,12 @@ while(1) {
 					$voters = GetVotersFor($publicKey,$server);
 					$voters_array = null;
 					$voters_array = $voters['accounts'];
+					while (!$voter_revenue) {
+						clog("[".$df."]Couldn't get voters list, trying again...",'processing');
+						$voters = GetVotersFor($publicKey,$server);
+						$voters_array = null;
+						sleep(1);
+					}
 
 					//Add Likstats contributors
 					$liskstats_task = "SELECT DISTINCT object FROM liskstats";
