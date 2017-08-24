@@ -48,7 +48,7 @@ while(1) {
 					$voters = GetVotersFor($publicKey,$server);
 					$voters_array = null;
 					$voters_array = $voters['accounts'];
-					while (!$voter_revenue) {
+					while (!$voters_array) {
 						clog("[".$df."]Couldn't get voters list, trying again...",'processing');
 						$voters = GetVotersFor($publicKey,$server);
 						$voters_array = null;
