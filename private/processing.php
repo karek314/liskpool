@@ -52,6 +52,7 @@ while(1) {
 						clog("[".$df."]Couldn't get voters list, trying again...",'processing');
 						$voters = GetVotersFor($publicKey,$server);
 						$voters_array = null;
+						$voters_array = $voters['accounts'];
 						sleep(1);
 					}
 
