@@ -50,6 +50,7 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 'public_directory' => 'private', //<- directory name of public dir
 'cap_balance' => '150000000000000' //balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
 ```
+<b>pool_fee_payout_address</b> address specified for pool fee should be voting for delegate or should be manually added to table "miners".
 
 # Usage
 Start LISK node as usual, and set up it to forging. But please note that you can forge with different node that one used for hosting pool.
