@@ -14,7 +14,7 @@ return array(
 	'delegate_address' => '',
 	'payout_threshold' => '0.2',
 	'fixed_withdraw_fee' => '0.1',
-	'withdraw_interval_in_sec' => '86400',
+	'withdraw_interval_in_sec' => '604800',
 	'secret' => 'passphrase1',
 	'secondSecret' => '',
 	'public_directory' => 'public',
