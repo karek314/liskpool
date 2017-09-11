@@ -2,6 +2,7 @@
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../config.php');
 require_once('logging.php');
+require_once('priv_utils.php');
 require('wss/Client.php');
 use WebSocket\Client;
 
@@ -61,7 +62,7 @@ while (1) {
     }
   }
   clog("[".$i."]Good nodes:".$ok."/".$all,'liskstats');
-  sleep(1600);
+  csleep(1600);
   $x++;
 }
 

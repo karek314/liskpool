@@ -132,7 +132,7 @@ while(1) {
     }
     clog("[".$df."] Statistics Update\nTook -> ".$took."s\nActive voters -> ".$voters_count."\nApproval -> ".$approval."\nVotepower -> ".$total_voters_power." \nBalance -> ".$balanceinlsk_p."\nRank -> ".$rank."\nBalance Reserve -> ".$pool_lsk_reserve."\nProductivity -> ".$pool_productivity,'stats');
     clog("Sleeping ".$time_sleep."s...",'stats');
-    sleep($time_sleep);
+    csleep($time_sleep);
   } else {
     //Can't get data, dont mess chart
     $end_time = time();
@@ -141,7 +141,7 @@ while(1) {
     if ($time_sleep < 1) {
       $time_sleep = 1;
     }
-    sleep($time_sleep);
+    csleep($time_sleep);
     clog("Can't get data...",'stats');
   }
 }

@@ -1,6 +1,27 @@
 <?php
 
 
+function csleep($wait_time){
+	$chr = 50;
+	echo "\n";
+	$chars = array();
+	$wait_time = $wait_time/$chr;
+	for ($i=0; $i <= $chr; $i++) {
+		$chars[] = "#";
+		$count = count($chars);
+		$string = '[';
+		$string .= implode('',$chars);
+		$empty = $chr-$count;
+		for ($j=0; $j <= $empty; $j++) { 
+			$string .= ' ';
+		}
+		$precent = (double)($i/$chr)*100;
+		echo "\rSleeping ".$string."] ".$precent."%";
+		usleep(floor($wait_time*1000000));
+	}
+}
+
+
 function IsBalanceOkToWithdraw($mysqli_handle,$server,$delegate,$debug = true){
 	$balanceinlsk_p = getCurrentBalance($delegate,$server,$debug);
 	$total = getCurrentDBUsersBalance($mysqli_handle,$debug);

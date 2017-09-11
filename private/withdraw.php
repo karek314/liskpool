@@ -81,11 +81,11 @@ while(1){
 			clog("No withdraws has been made",'withdraw');
 		}
 		clog("Sleeping for:".$withdraw_interval_in_sec." sec",'withdraw');
-		sleep($withdraw_interval_in_sec);
+		csleep($withdraw_interval_in_sec);
 	} else {
 		clog("\n!!! Incorrect - balance invalid !!!",'withdraw');
 		clog("!!! Can't withdraw, retrying after 30min !!!\n\n",'withdraw');
-		sleep(1800);
+		csleep(1800);
 	}
 }
 ?>

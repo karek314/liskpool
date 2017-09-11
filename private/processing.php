@@ -1,5 +1,6 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
+require_once('priv_utils.php');
 $config = include('../config.php');
 require_once('../lisk-php/main.php');
 require_once('logging.php');
@@ -53,7 +54,7 @@ while(1) {
 						$voters = GetVotersFor($publicKey,$server);
 						$voters_array = null;
 						$voters_array = $voters['accounts'];
-						sleep(1);
+						csleep(1);
 					}
 
 					//Add Likstats contributors
@@ -170,6 +171,6 @@ while(1) {
 		clog("Empty response, no blocks to iterate",'processing');
 	}
 	clog("120s sleep",'processing');
-	sleep(120);
+	csleep(120);
 }
 ?>

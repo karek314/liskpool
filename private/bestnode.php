@@ -2,6 +2,7 @@
 error_reporting(error_reporting() & ~E_NOTICE & ~E_WARNING);
 require_once('../lisk-php/main.php');
 require_once('logging.php');
+require_once('priv_utils.php');
 $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
@@ -63,7 +64,7 @@ while(1) {
     $time_sleep = 1;
   }
   clog('Took:'.$took.' sleep:'.$time_sleep,'bestnode');
-  sleep($time_sleep);
+  csleep($time_sleep);
 }
 
 
