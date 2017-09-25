@@ -38,23 +38,21 @@ while(1) {
 			$task = "SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1";	
 			$query = mysqli_query($mysqli,$task) or die("Database Error");	
 			if($query->num_rows == 0) {
-				clog("processing block with height: ".$forged_block,'processing');
-				$task = "INSERT INTO blocks (blockid) SELECT * FROM (SELECT '$forged_block') AS tmp WHERE NOT EXISTS (SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1)";
-				$query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
-				$affected = $mysqli -> affected_rows;
-
 				if ($forged_block_revenue != 0) {
 					clog("Forged block at height:".$forged_block,'processing');
 					//Retrive current voters
 					$voters = GetVotersFor($publicKey,$server);
 					$voters_array = null;
 					$voters_array = $voters['accounts'];
-					while (!$voters_array) {
-						clog("[".$df."]Couldn't get voters list, trying again...",'processing');
-						$voters = GetVotersFor($publicKey,$server);
-						$voters_array = null;
-						$voters_array = $voters['accounts'];
-						csleep(1);
+					if (!$voters_array) {
+						clog("[".$df."]Couldn't get voters list, sleeping 10s then breaking to main loop and retrying...",'processing');
+						csleep(10);
+						break;
+					} else {
+						clog("processing block with height: ".$forged_block,'processing');
+						$task = "INSERT INTO blocks (blockid) SELECT * FROM (SELECT '$forged_block') AS tmp WHERE NOT EXISTS (SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1)";
+						$query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
+						$affected = $mysqli -> affected_rows;
 					}
 
 					//Add Likstats contributors
