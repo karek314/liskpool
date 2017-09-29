@@ -5,6 +5,7 @@ function csleep($wait_time){
 	$chr = 50;
 	echo "\n";
 	$chars = array();
+	$r_wait_time = $wait_time;
 	$wait_time = $wait_time/$chr;
 	for ($i=0; $i <= $chr; $i++) {
 		$chars[] = "#";
@@ -16,8 +17,8 @@ function csleep($wait_time){
 			$string .= ' ';
 		}
 		$precent = (double)($i/$chr)*100;
-		echo "\rSleeping ".$string."] ".$precent."%";
-		usleep(floor($wait_time*1000000));
+		echo "\rSleeping ".$r_wait_time."s ".$string."] ".$precent."%";
+		usleep(floor($r_wait_time*1000000));
 	}
 }
 
