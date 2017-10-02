@@ -21,8 +21,14 @@ function csleep($wait_time){
 		$current_time = time();
 		$diff = $current_time-$start_time;
 		$left = $org_wait_time-$diff;
+		$slept = $sleep_end-$sleep_start;
 		echo "\rSleeping ".$left."s [".$i."/".$chr."(".$wait_time."s)] ".$string."] ".$precent."%";
-		usleep($wait_time*1000000);
+		if ($wait_time > 300) {
+			sleep(floor($wait_time));
+		} else {
+			$u_wait_time = $wait_time*1000000;
+			usleep($u_wait_time);
+		}
 	}
 }
 
