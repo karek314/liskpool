@@ -8,6 +8,8 @@ $delegate = $config['delegate_address'];
 $pool_fee = new Math_BigInteger(floatval(str_replace('%', '', $config['pool_fee']))*10);
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
 $protocol = $config['protocol'];
+$support_standby_delegates = $config['support_standby_delegates'];
+$support_standby_delegates_amount = $config['support_standby_delegates_amount'];
 $cap_balance = new Math_BigInteger($config['cap_balance']);
 $divide1k = new Math_BigInteger('1000');
 $df = 0;
@@ -87,6 +89,18 @@ while(1) {
 						array_push($voters_array, $t_array);
 					}
 					
+					if ((int)$support_standby_delegates > 0) {
+						clog("Support standby delegates count:".$support_standby_delegates,'processing');
+						$stndby_delegates = GetDelegateList($support_standby_delegates,'101',$server)['delegates'];
+						foreach ($stndby_delegates as $key => $value) {
+							$address = $value['address'];
+							clog("Adding Standby Delegate Support [".$address."] with balance:".$support_standby_delegates_amount,'processing');
+							$t_array = array('username' => NULL,'address' => $address,'publicKey' => '','balance' => $support_standby_delegates_amount);
+							array_push($voters_array, $t_array);
+						}
+					} else {
+						clog("Not supporting standby delegates",'processing');
+					}
 					clog("Current Voters:",'processing');
 					foreach ($voters_array as $key => $value) {
 						//Count total power of users and add them to miners table if not added before

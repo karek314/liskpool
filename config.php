@@ -18,6 +18,8 @@ return array(
 	'secret' => 'passphrase1',
 	'secondSecret' => '',
 	'public_directory' => 'public',
-	'cap_balance' => '150000000000000'
+	'cap_balance' => '150000000000000',
+	'support_standby_delegates' => '5',	
+	'support_standby_delegates_amount' => '5000000000000'
 );
 ?>
