@@ -52,6 +52,7 @@ while(1){
 			$required_balance+=1.0;
 			clog("Transfering:".$required_balance." LSK for withdraw to fancy hub: ".$fancy_address,'withdraw');
 			$required_balance = $required_balance * 100000000;
+			$required_balance-=AccountForAddress($fancy_address,$server)["account"]["balance"];
 			if (!$secret2) {
 				$tx = CreateTransaction($fancy_address, $required_balance, $secret1, false, false, -10);
 			} else {
