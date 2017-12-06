@@ -17,9 +17,11 @@ return array(
 	'withdraw_interval_in_sec' => '604800',
 	'secret' => 'passphrase1',
 	'secondSecret' => '',
+	'fancy_withdraw_hub' => '',
 	'public_directory' => 'public',
 	'cap_balance' => '150000000000000',
 	'support_standby_delegates' => '5',	
-	'support_standby_delegates_amount' => '5000000000000'
+	'support_standby_delegates_amount' => '5000000000000',
+	'slow_withdraw' => true
 );
 ?>

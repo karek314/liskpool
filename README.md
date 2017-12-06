@@ -46,9 +46,11 @@ $lisk_ports = array(0 => '8000',1 => '8000');
 'fixed_withdraw_fee' => '0.1',    //<- Fixed Withdraw fee in LISK
 'withdraw_interval_in_sec' => '43200',   //<- Withdraw script interval represented in seconds
 'secret' => 'passphrase1',    //<- Main passphrase the same your as in your forging delegate
+'fancy_withdraw_hub' => '', //<-beta withdraw hub, leave empty for normal withdraws
 'secondSecret' => 'passphrase2', //<- Second passphrase, if you dont have one leave it empty ex. ""
 'public_directory' => 'private', //<- directory name of public dir
-'cap_balance' => '150000000000000' //balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
+'cap_balance' => '150000000000000', //balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
+'slow_withdraw' => true //with payouts >1k lisk tx pool limit problem
 ```
 <b>pool_fee_payout_address</b> address specified for pool fee should be voting for delegate or should be manually added to table "miners".
 
