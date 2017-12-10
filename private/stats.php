@@ -27,7 +27,7 @@ while(1) {
   $minedblocks = $row[0];
   $m->set('minedblocks', $minedblocks, 3600*365);
   //Get voters forged amount
-  $task = "SELECT balance,address FROM miners ORDER BY balance DESC LIMIT 5000;";
+  $task = "SELECT balance,address FROM miners ORDER BY balance DESC LIMIT 100;";
   $tresult = mysqli_query($mysqli,$task)or die("Database Error");
   $forged_voters = array();
   while ($row=mysqli_fetch_row($tresult)){

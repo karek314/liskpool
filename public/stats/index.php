@@ -214,15 +214,19 @@ echo '<!DOCTYPE html>
 
     echo '</center>';
 
-  echo '<b><br>&nbsp;&nbsp;&nbsp;&nbsp;Voters forging results:</b>';
+  echo '<b><br>&nbsp;&nbsp;&nbsp;&nbsp;Voters forging results (Limit 100):</b>';
   if ($activeminers == '') {
     echo ' Pool did not processed any blocks yet so nothing to display here!<br>';
   }
   echo $activeminers;
-  echo '<b><br><br>&nbsp;&nbsp;&nbsp;&nbsp;Active Voters:</b>';
+  echo '<b><br><br>&nbsp;&nbsp;&nbsp;&nbsp;Active Voters (Limit 100):</b>';
   $new_array = array_reverse($new_array);
+  $xm=0;
   foreach ($new_array as $key => $value) {
-    echo '<br>'.$value;
+    $xm++;
+    if ($xm<101) {
+      echo '<br>'.$value;
+    }
   }
   echo '<br><br><b>Forged Blocks (last 50):</b><br>';
   $last_blocks = $m->get('last_blocks');
