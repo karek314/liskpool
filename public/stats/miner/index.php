@@ -616,7 +616,7 @@ $(function () {
                 type: "all",
                 text: "All"
             }],
-            selected: 1
+            selected: 4
         },
             chart: {
                 backgroundColor: "#F5F5F5",
