@@ -10,6 +10,7 @@ $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $pool_fee_payout_address = $config['pool_fee_payout_address'];
 $protocol = $config['protocol'];
 $public_directory = $config['public_directory'];
+$fee = $config['pool_fee_payout_address'];
 
 while(1) {
   $m = new Memcached();
@@ -44,6 +45,21 @@ while(1) {
     array_push($last_blocks, $row[0]);
   }
   $m->set('last_blocks', $last_blocks, 3600*365);
+  //Read all forgers balance
+  $task = "SELECT balance,address FROM miners ORDER BY balance DESC LIMIT 50000;";
+  $result = mysqli_query($mysqli,$task)or die("Database Error");
+  $data = array();
+  while ($row=mysqli_fetch_row($result)){
+    $balance = $row[0];
+    $address = $row[1];
+    if ($address != $fee) {
+      $balanceinlsk = floatval($balance/100000000);
+      $balance_ar = array('lsk' => number_format($balanceinlsk, 8),'raw' => $balance);
+      $tmp = array('address' => $address,'balance' => $balance_ar);
+      array_push($data, $tmp);
+    }
+  }
+  $m->set('forgers_balance', $data, 3600*365);
   //Retrive Public Key
   $json = AccountForAddress($delegate,$server);
   $m->set('delegate_account', $json, 3600*365);
