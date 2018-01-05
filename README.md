@@ -124,6 +124,11 @@ api/info/
 <pre>
 api/info/forged/
 </pre>
+<b>Liskstats.net good and bad nodes for processing.php</b>
+<pre>
+api/info/liskstats/?type=html
+api/info/liskstats/?type=json
+</pre>
 
 # Logs
 As soon any of background scripts will be excuted, <b>logs</b> directory will appear in <b>private</b> directory. It will store all logs of all background scripts.
