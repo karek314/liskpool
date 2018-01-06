@@ -93,11 +93,11 @@ while (1) {
     }
   }
   if (!$height_array) {
-    break;
+    continue;
   }
   $best_height = max($height_array);
   if ($best_height < 4000000) {
-    break;
+    continue;
   }
   clog("[".$i."]Latest version of Lisk:".$latest_lisk_version,'liskstats');
   $public_array['latest_lisk_core_version'] = $latest_lisk_version;
@@ -113,45 +113,45 @@ while (1) {
     $contact = $node["contact"];
     $height = $node['height'];
     if (strlen($contact) > 2) {
-      if (strtolower($version) == strtolower($latest_lisk_version)) {
-        clog("[".$i."][OK]".$object."->".$version." All good",'liskstats');
-        if (!in_array($object, $black_list)) {
-          $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
-          if ($height > $diff) {
-            $ok++;
-            $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
-            $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
-            $isPayable = false;
-            if (strpos($object, 'L') !== false) {
-              $tmp = str_replace('L', '', $object);
-              if (is_numeric($tmp)) {
-                $isPayable = true;
+      if (!isLiskAddress($contact)) {
+        if (strtolower($version) == strtolower($latest_lisk_version)) {
+          clog("[".$i."][OK]".$object."->".$version." All good",'liskstats');
+          if (!in_array($object, $black_list)) {
+            $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
+            if ($height > $diff) {
+              $ok++;
+              $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
+              $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
+              if (isLiskAddress($object)) {
+                $node['info'] = 'On payroll';
+              } else {
+                $node['info'] = 'voluntary';
               }
-            }
-            if ($isPayable) {
-              $node['info'] = 'On payroll';
+              $public_good[] = $node;
             } else {
-              $node['info'] = 'voluntary';
+              clog("[".$i."] (".$height.") ".$object."->".$version." Node stucked",'liskstats');
+              $tmp = array('bad_node' => true, 'details' => 'node stucked / too much behind network best height');
+              $node['info'] = $tmp;
+              $public_bad[] = $node;
             }
-            $public_good[] = $node;
           } else {
-            clog("[".$i."] (".$height.") ".$object."->".$version." Node stucked",'liskstats');
-            $tmp = array('bad_node' => true, 'details' => 'node stucked / too much behind network best height');
+            clog("[".$i."] (".$height.") ".$object."->".$version." Blacklist",'liskstats');
+            $tmp = array('bad_node' => true, 'details' => 'blacklisted');
             $node['info'] = $tmp;
             $public_bad[] = $node;
           }
         } else {
-          clog("[".$i."] (".$height.") ".$object."->".$version." Blacklist",'liskstats');
-          $tmp = array('bad_node' => true, 'details' => 'blacklisted');
+          clog("[".$i."] (".$height.") ".$object."->".$version." Running old version",'liskstats');
+          $tmp = array('bad_node' => true, 'details' => 'running old version');
           $node['info'] = $tmp;
           $public_bad[] = $node;
-        }
+        } 
       } else {
-        clog("[".$i."] (".$height.") ".$object."->".$version." Running old version",'liskstats');
-        $tmp = array('bad_node' => true, 'details' => 'running old version');
+        clog("[".$i."] (".$height.") ".$object."->".$version." Contact info is invalid",'liskstats');
+        $tmp = array('bad_node' => true, 'details' => 'contact info is invalid');
         $node['info'] = $tmp;
         $public_bad[] = $node;
-      } 
+      }
     } else {
       clog("[".$i."] (".$height.") ".$object."->".$version." Contact info is missing",'liskstats');
       $tmp = array('bad_node' => true, 'details' => 'contact info is missing');
@@ -166,6 +166,16 @@ while (1) {
   $m->set('liskstats', $public_array, 3600*365);
   csleep(60);
   $x++;
+}
+
+function isLiskAddress($object){
+  if (strpos($object, 'L') !== false) {
+    $tmp = str_replace('L', '', $object);
+    if (is_numeric($tmp)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 ?>
