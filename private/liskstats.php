@@ -112,40 +112,48 @@ while (1) {
     $version = $node["version"];
     $contact = $node["contact"];
     $height = $node['height'];
+    $ip = $node['ip'];
     if (strlen($contact) > 2) {
       if (!isLiskAddress($contact)) {
-        if (strtolower($version) == strtolower($latest_lisk_version)) {
-          clog("[".$i."][OK]".$object."->".$version." All good",'liskstats');
-          if (!in_array($object, $black_list)) {
-            $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
-            if ($height > $diff) {
-              $ok++;
-              $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
-              $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
-              if (isLiskAddress($object)) {
-                $node['info'] = 'On payroll';
+        if (!IsOffender($ip,$node_list)) {
+          if (strtolower($version) == strtolower($latest_lisk_version)) {
+            clog("[".$i."][OK]".$object."->".$version." All good",'liskstats');
+            if (!in_array($object, $black_list)) {
+              $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
+              if ($height > $diff) {
+                $ok++;
+                $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
+                $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
+                if (isLiskAddress($object)) {
+                  $node['info'] = 'On payroll';
+                } else {
+                  $node['info'] = 'voluntary';
+                }
+                $public_good[] = $node;
               } else {
-                $node['info'] = 'voluntary';
+                clog("[".$i."] (".$height.") ".$object."->".$version." Node stucked",'liskstats');
+                $tmp = array('bad_node' => true, 'details' => 'node stucked / too much behind network best height');
+                $node['info'] = $tmp;
+                $public_bad[] = $node;
               }
-              $public_good[] = $node;
             } else {
-              clog("[".$i."] (".$height.") ".$object."->".$version." Node stucked",'liskstats');
-              $tmp = array('bad_node' => true, 'details' => 'node stucked / too much behind network best height');
+              clog("[".$i."] (".$height.") ".$object."->".$version." Blacklist",'liskstats');
+              $tmp = array('bad_node' => true, 'details' => 'blacklisted');
               $node['info'] = $tmp;
               $public_bad[] = $node;
             }
           } else {
-            clog("[".$i."] (".$height.") ".$object."->".$version." Blacklist",'liskstats');
-            $tmp = array('bad_node' => true, 'details' => 'blacklisted');
+            clog("[".$i."] (".$height.") ".$object."->".$version." Running old version",'liskstats');
+            $tmp = array('bad_node' => true, 'details' => 'running old version');
             $node['info'] = $tmp;
             $public_bad[] = $node;
-          }
+          } 
         } else {
-          clog("[".$i."] (".$height.") ".$object."->".$version." Running old version",'liskstats');
-          $tmp = array('bad_node' => true, 'details' => 'running old version');
+          clog("[".$i."] (".$height.") ".$object."->".$version." multiple nodes from one ip",'liskstats');
+          $tmp = array('bad_node' => true, 'details' => 'multiple nodes from one ip');
           $node['info'] = $tmp;
           $public_bad[] = $node;
-        } 
+        }
       } else {
         clog("[".$i."] (".$height.") ".$object."->".$version." Contact info is invalid",'liskstats');
         $tmp = array('bad_node' => true, 'details' => 'contact info is invalid');
@@ -167,6 +175,22 @@ while (1) {
   csleep(60);
   $x++;
 }
+
+
+function IsOffender($ip,$array_of_nodes){
+  $count=0;
+  foreach ($array_of_nodes as $key => $node) {
+    $all++;
+    if ($node["ip"] == $ip) {
+      $count++;
+    }
+  }
+  if ($count == 1) {
+    return false;
+  }
+  return true;
+}
+
 
 function isLiskAddress($object){
   if (strpos($object, 'L') !== false) {
