@@ -30,7 +30,7 @@ while (1) {
   $public_array = array();
   $i++;
   $timestamp_ms = time()*1000;
-  $client = new Client("wss://liskstats.net/primus/?_primuscb=".$timestamp_ms."-0");
+  $client = new Client("ws://report.liskstats.net/primus/?_primuscb=".$timestamp_ms."-0");
   $client->send('{"emit":["ready"]}');
 
   clog("[".$i."]Cleaning everything",'liskstats');
