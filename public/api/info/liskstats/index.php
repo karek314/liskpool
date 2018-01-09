@@ -29,7 +29,7 @@ function output_html($json){
 		echo '<tr><th>'.$node['object'].'</th><th>'.$node['version'].'</th><th>'.str_replace('f', '', str_replace(':', '', $node['ip'])).':'.$node['port'].'</th><th>'.$node['os'].'</th><th>'.$node['height'].'</th><th>'.$node['info'].'</th><th>'.$node['contact'].'</th>';
 	}
 	echo "</table>";
-	echo '<br><br><br><br><font size="5" color="red">Bad nodes</font><br><table style="width:70%"><tr><th>ID</th><th>Version</th><th>Address</th><th>Os</th><th>Height</th><th>Info</th><th>Contact</th></tr>';
+	echo '<br><br><br><br><font size="5" color="red">Bad nodes</font><br><font size="2" color="blue">Node stucked?<br><b>bash lisk.sh rebuild -u https://snapshot.thepool.io</b></font><br><br><table style="width:70%"><tr><th>ID</th><th>Version</th><th>Address</th><th>Os</th><th>Height</th><th>Info</th><th>Contact</th></tr>';
 	foreach ($nodes['bad'] as $key => $node) {
 		echo '<tr><th>'.$node['object'].'</th><th>'.$node['version'].'</th><th>'.str_replace('f', '', str_replace(':', '', $node['ip'])).':'.$node['port'].'</th><th>'.$node['os'].'</th><th>'.$node['height'].'</th><th>'.$node['info']['details'].'</th><th>'.$node['contact'].'</th>';
 	}
