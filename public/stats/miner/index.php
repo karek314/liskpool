@@ -500,7 +500,7 @@ $(function () {
                     ]
                 },
                 tooltip: {
-                    valueDecimals: 2
+                    valueDecimals: 8
                 }
             }]
         });
@@ -576,7 +576,7 @@ $(function () {
                     ]
                 },
                 tooltip: {
-                    valueDecimals: 2
+                    valueDecimals: 8
                 }
             }]
         });
@@ -652,7 +652,7 @@ $(function () {
                     ]
                 },
                 tooltip: {
-                    valueDecimals: 2
+                    valueDecimals: 8
                 }
             }]
         });
