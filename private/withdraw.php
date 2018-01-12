@@ -12,6 +12,7 @@ $fixed_withdraw_fee = $config['fixed_withdraw_fee'];
 $delegate = $config['delegate_address'];
 $secret1 = $config['secret'];
 $secret2 = $config['secondSecret'];
+$fancy_secret = $config['fancy_withdraw_hub'];
 $protocol = $config['protocol'];
 $public_directory = $config['public_directory'];
 
@@ -22,6 +23,7 @@ while(1){
   	$lisk_port = $m->get('lisk_port');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
 	$withdraw_array = array();
+	$required_balance = 0;
 	if (IsBalanceOkToWithdraw($mysqli,$server,$delegate)) {
   		$json = AccountForAddress($delegate,$server);
   		$publicKey = $json['account']['publicKey'];
@@ -36,6 +38,7 @@ while(1){
 			if ($balanceinlsk > $payout_threshold) {
 				clog("Adding to withdraw queue\n",'withdraw');
 				$withdraw_array[$payer_adr] = $balanceinlsk;
+				$required_balance+=$balanceinlsk;
 			} else {
 				clog("Not exceeded threshold\n",'withdraw');
 			}
@@ -43,6 +46,25 @@ while(1){
 		$wcount = count($withdraw_array);
 		$txleft = $wcount;
 		clog($wcount." eligible for withdraw",'withdraw');
+		clog($required_balance." required for withdraw",'withdraw');
+		if ($fancy_secret && $required_balance) {
+			$output = getKeysFromSecret($fancy_secret,true);
+			$fancy_address = getAddressFromPublicKey($output['public']);
+			$required_balance+=1.0;
+			clog("Transfering:".$required_balance." LSK for withdraw to fancy hub: ".$fancy_address,'withdraw');
+			$required_balance = $required_balance * 100000000;
+			$required_balance-=AccountForAddress($fancy_address,$server)["account"]["balance"];
+			if (!$secret2) {
+				$tx = CreateTransaction($fancy_address, $required_balance, $secret1, false, false, -10);
+			} else {
+				$tx = CreateTransaction($fancy_address, $required_balance, $secret1, $secret2, false, -10);
+			}
+			$tx_resp = SendTransaction(json_encode($tx),$server);
+			$txid = $tx_resp['transactionId'];
+			clog("Sleeping for: 120 sec, waiting for hub transfer[".$txid."] to settle",'withdraw');
+			csleep(120);
+		}
+
 		$pipes = array();
 		foreach ($withdraw_array as $recipient => $balanceinlsk) {
 			$pcount = count($pipes);
