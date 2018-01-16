@@ -123,6 +123,7 @@ api/info/
 <b>Current forged balance for each voter / contributor</b>
 <pre>
 api/info/forged/
+api/info/forged/?by=ADDRESS
 </pre>
 <b>Liskstats.net good and bad nodes for processing.php</b>
 <pre>
