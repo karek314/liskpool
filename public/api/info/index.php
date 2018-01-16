@@ -47,5 +47,6 @@ $response = array('pool_fee' => $config['pool_fee'],
 				  'blocks' => $blocks,
 				  'updated' => $last_update,
 				  'success' => true);
+header('Content-Type: application/json');
 die(json_encode($response));
 ?>

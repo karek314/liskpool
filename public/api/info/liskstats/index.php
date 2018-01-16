@@ -7,6 +7,7 @@ $response = array('data' => $data,'success' => true);
 if ($_GET['type'] == 'html') {
 	output_html($data);
 } else if ($_GET['type'] == 'json') {
+	header('Content-Type: application/json');
 	die(json_encode($response));
 } else {
 	output_html($data);
