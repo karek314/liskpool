@@ -19,6 +19,7 @@ if ($by) {
 	$m->addServer('localhost', 11211);
 	$data = $m->get('forgers_balance');
 	$response = array('data' => $data,'success' => true);
+	header('Content-Type: application/json');
 	die(json_encode($response));
 }
 ?>
