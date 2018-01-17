@@ -7,7 +7,6 @@ $config = include('../config.php');
 $df = 0;
 $delegate = $config['delegate_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
-$pool_fee_payout_address = $config['pool_fee_payout_address'];
 $protocol = $config['protocol'];
 $public_directory = $config['public_directory'];
 $fee = $config['pool_fee_payout_address'];
@@ -138,6 +137,13 @@ while(1) {
       }
     }
     $pool_lsk_reserve = getCurrentBalance($delegate,$server,false)-getCurrentDBUsersBalance($mysqli,false);
+    //handle pool reserve
+    if ($pool_lsk_reserve > 10) {
+      $tmp = $pool_lsk_reserve-10;
+      $task = "UPDATE miners SET balance=balance+'$tmp' WHERE address='$fee';"; 
+      $query = mysqli_query($mysqli,$task) or die("Database Error");
+      $pool_lsk_reserve=10;
+    }
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();
