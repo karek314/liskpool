@@ -140,10 +140,9 @@ while(1) {
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     //handle pool reserve
     if ($pool_lsk_reserve > 10) {
-      $tmp = $pool_lsk_reserve-10;
+      $tmp = round(($pool_lsk_reserve-10)*100000000);
       $task = "UPDATE miners SET balance=balance+'$tmp' WHERE address='$fee';"; 
       $query = mysqli_query($mysqli,$task) or die("Database Error");
-      $pool_lsk_reserve=10;
     }
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();
