@@ -137,6 +137,7 @@ while(1) {
       }
     }
     $pool_lsk_reserve = getCurrentBalance($delegate,$server,false)-getCurrentDBUsersBalance($mysqli,false);
+    AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     //handle pool reserve
     if ($pool_lsk_reserve > 10) {
       $tmp = $pool_lsk_reserve-10;
@@ -144,7 +145,6 @@ while(1) {
       $query = mysqli_query($mysqli,$task) or die("Database Error");
       $pool_lsk_reserve=10;
     }
-    AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();
     $took = $end_time - $start_time;
