@@ -106,6 +106,7 @@ while (1) {
   $all = 0;
   $public_good = array();
   $public_bad = array();
+  $operators_instances = array();
   foreach ($node_list as $key => $node) {
     $all++;
     $object = $node["object"];
@@ -121,15 +122,27 @@ while (1) {
             if (!in_array($object, $black_list)) {
               $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
               if ($height > $diff) {
-                $ok++;
-                $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
-                $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
-                if (isLiskAddress($object)) {
-                  $node['info'] = 'On payroll';
+                if ($operators_instances[$contact] <= 5){
+                  $ok++;
+                  $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
+                  $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
+                  if (isLiskAddress($object)) {
+                    $node['info'] = 'On payroll';
+                    if ($operators_instances[$contact]) {
+                      $operators_instances[$contact] = $operators_instances[$contact] + 1;
+                    } else {
+                      $operators_instances[$contact] = 1;
+                    }
+                  } else {
+                    $node['info'] = 'voluntary';
+                  }
+                  $public_good[] = $node;
                 } else {
-                  $node['info'] = 'voluntary';
+                  clog("[".$i."] (".$height.") ".$object."->".$version." Instances per operator limit",'liskstats');
+                  $tmp = array('bad_node' => true, 'details' => 'Instances per operator limit (max 5)');
+                  $node['info'] = $tmp;
+                  $public_bad[] = $node;
                 }
-                $public_good[] = $node;
               } else {
                 clog("[".$i."] (".$height.") ".$object."->".$version." Node stucked",'liskstats');
                 $tmp = array('bad_node' => true, 'details' => 'node stucked / too much behind network best height');
