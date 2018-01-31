@@ -122,7 +122,7 @@ while (1) {
             if (!in_array($object, $black_list)) {
               $diff = $best_height - LAZY_BLOCKHEIGHT_DIFF;
               if ($height > $diff) {
-                if ($operators_instances[$contact] <= 5){
+                if ($operators_instances[$contact] < 5){
                   $ok++;
                   $task = "INSERT INTO liskstats (object) SELECT * FROM (SELECT '$object') AS tmp WHERE NOT EXISTS (SELECT * FROM liskstats WHERE object = '$object' LIMIT 1)";
                   $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
