@@ -30,17 +30,27 @@ while (1) {
   $public_array = array();
   $i++;
   $timestamp_ms = time()*1000;
+  clog("[".$i."]Connecting to Liskstats",'liskstats');
   $client = new Client("ws://report.liskstats.net/primus/?_primuscb=".$timestamp_ms."-0");
   $client->send('{"emit":["ready"]}');
-
-  clog("[".$i."]Cleaning everything",'liskstats');
   $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
-  $task = "TRUNCATE TABLE `liskstats`";
-  $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
-
-  $response = json_decode($client->receive(),true);
   $node_list = array();
   $latest_lisk_version = "";
+  $array_of_nodes = false;
+  while(!$array_of_nodes){
+    clog("[".$i."] Waiting for websocket data",'liskstats');
+    $response = json_decode($client->receive(),true);
+    if (isset($response['emit'])) {
+      if (isset($response['emit'][1])) { 
+        if (isset($response['emit'][1]['nodes'])) { 
+          $array_of_nodes = $response['emit'][1]['nodes'];
+        }
+      }
+    }
+  }
+  clog("[".$i."]Cleaning everything",'liskstats');
+  $task = "TRUNCATE TABLE `liskstats`";
+  $query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
   if (isset($response['emit'])) {
     if (isset($response['emit'][1])) { 
       if (isset($response['emit'][1]['nodes'])) { 
