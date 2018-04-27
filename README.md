@@ -1,6 +1,12 @@
 # Lisk Pool
 This is first and fully open source Lisk delegate forging pool (also known as delegate reward sharing). Written in PHP.
 
+<b>Master</b> branch from and after 1.0.0 version of lisk core.<br>
+<b>Legacy</b> branch - before 1.0.0<br>
+
+### Tokens and Dapps
+LiskPool will allow to distribute own tokens to voters in further updates
+
 # Requirements
 <a href="https://mariadb.org" target="_blank">MariaDB server</a><br>
 <a href="https://memcached.org" target="_blank">Memcached</a><br>
@@ -29,32 +35,40 @@ Navigate to config.php
 You can add here more independent nodes which are used to determine node with best height. It keeps pool updated with most recent state of network, prevents messing up charts in case of forks and other issues.
 
 ```php
-$lisk_nodes = array(0 => 'localhost',1 => '123.123.123.123');
-$lisk_ports = array(0 => '8000',1 => '8000');
 
-'host' => 'localhost',    //<- dont change if mariadb is running on the same machine
-'username' => 'root',     //<- Database user
-'password' => 'dbpass',  //<- Database Password
-'bdd' => 'lisk',    //<- Database Name
-'lisk_host' => $lisk_nodes,
-'lisk_port' => $lisk_ports,
-'protocol' => 'http', //<-pick http or https
-'pool_fee' => '25.0%',     //<- adjustable pool fee as float for ex. "25.0%"
-'pool_fee_payout_address' => '17957303129556813956L',   //<- Payout address if fee > 0.0
-'delegate_address' => '17957303129556813956L',    //<- Delegate address - must be valid forging delegate address
-'payout_threshold' => '1',    //<- Payout threshold in LISK
-'fixed_withdraw_fee' => '0.1',    //<- Fixed Withdraw fee in LISK
-'withdraw_interval_in_sec' => '43200',   //<- Withdraw script interval represented in seconds
-'secret' => 'passphrase1',    //<- Main passphrase the same your as in your forging delegate
-'fancy_withdraw_hub' => '', //<-beta withdraw hub, leave empty for normal withdraws
-'secondSecret' => 'passphrase2', //<- Second passphrase, if you dont have one leave it empty ex. ""
-'public_directory' => 'private', //<- directory name of public dir
-'cap_balance' => '150000000000000', //balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
-'slow_withdraw' => true //with payouts >1k lisk tx pool limit problem
+<?php
+$lisk_nodes = array('localhost','123.123.123.123');
+$lisk_ports = array('5000','5000');
+return array(
+    'host' => 'localhost',
+	'username' => 'root',     //<- Database user
+	'password' => 'dbpass',  //<- Database Password
+	'bdd' => 'lisk', //<- Database name
+	'lisk_host' => $lisk_nodes,
+	'lisk_port' => $lisk_ports,
+	'protocol' => 'http',
+	'pool_fee' => '25.0%', //<- adjustable pool fee as float for ex. "25.0%"
+	'pool_fee_payout_address' => '', //<- Pool revenue address
+	'delegate_address' => '', //<- Delegate address - must be valid forging delegate address
+	'payout_threshold' => '0.2', //<- Payout threshold in LSK
+	'withdraw_interval_in_sec' => '604800', //<- Withdraw script interval represented in seconds
+	'secret' => 'passphrase1', //<- Main passphrase the same your as in your forging delegate
+	'secondSecret' => '', //<- Second passphrase, leave empty if only one enabled
+	'fancy_withdraw_hub' => '', //<- Put here passphrase to withdraw from different account
+	'public_directory' => 'public', //<- directory name of public dir served with webserver
+	'cap_balance' => '150000000000000', //<- balance to cap voter votepower, default - anything over 1.5m LSK will be reduced to 1.5m
+	'support_standby_delegates' => '5',	//<- automatically donate standby delegates
+	'support_standby_delegates_amount' => '5000000000000',
+	'slow_withdraw' => true //<- With payouts >1k lisk tx pool limit problem, it withdraws slower when true
+);
+?>
 ```
 <b>pool_fee_payout_address</b> address specified for pool fee should be voting for delegate or should be manually added to table "miners".
 
 # Usage
+
+(Managing and starting liskpool will be moved under one shell script)
+
 Start Lisk core node, enable forging directly or use [lisk-best-forger](https://github.com/karek314/lisk-best-forger). You can forge with different node that one used for pool.
 
 Navigate to <b>/private/</b> directory and start background scripts:<br>
@@ -86,6 +100,7 @@ screen -x processing
 </pre>
 
 ## Forging productivity
+(will be updated soon)
 Optionally you can use [lisk-best-forger](https://github.com/karek314/lisk-best-forger) background script to improve forging productivity.
 <pre>
 cd private/forging
@@ -133,6 +148,10 @@ api/info/liskstats/?type=json
 
 # Logs
 As soon any of background scripts gets excuted, <b>logs</b> directory will appear in <b>private</b> directory. It will store all logs of all background scripts.
+
+# Migration from Lisk Core 0.9.X branch to 1.0.0 / Master
+Soon.
+
 
 # Migration from older version of pool
 In past all chart data was stored in database tables, however with millions of rows and cheap vps it could have been possible bottleneck with thousands of voters and more. If you are pool operator and you want to keep all statistics history.

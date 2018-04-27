@@ -10,6 +10,7 @@ $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $protocol = $config['protocol'];
 $public_directory = $config['public_directory'];
 $fee = $config['pool_fee_payout_address'];
+$fancy_secret = $config['fancy_withdraw_hub'];
 
 while(1) {
   $m = new Memcached();
@@ -62,19 +63,35 @@ while(1) {
   //Retrive Public Key
   $json = AccountForAddress($delegate,$server);
   $m->set('delegate_account', $json, 3600*365);
-  $publicKey = $json['account']['publicKey'];
-  $pool_balance = $json['account']['balance'];
+  $publicKey = $json['data'][0]['publicKey'];
+  $pool_balance = $json['data'][0]['balance'];
   //get forging delegate info
   $d_data = GetDelegateInfo($publicKey,$server);
   $m->set('d_data', $d_data, 3600*365);
-  $d_data = $d_data['delegate'];
-  $rank = $d_data['rate'];
-  $approval = $d_data['approval'];
-  $pool_productivity = $d_data['productivity'];
+  $rank = $d_data['data'][0]['rank'];
+  $approval = $d_data['data'][0]['approval'];
+  $pool_productivity = $d_data['data'][0]['productivity'];
   //Retrive voters
+  $voters_array = null;
+  clog("[".$df."]Getting initial voters list...",'processing');
   $voters = GetVotersFor($publicKey,$server);
-  $m->set('d_voters', $voters, 3600*365);
-  $voters_array = $voters['accounts'];
+  $voters_count = $voters['data']['votes'];
+  $voters_array = $voters['data']['voters'];
+  clog("[".$df."]Count:".$voters_count,'processing');
+  $offset = 100;
+  while ($offset <= $voters_count+100) {
+    if ($offset > $voters_count) {
+      $effective_offset = $voters_count;
+    } else {
+      $effective_offset = $offset;
+    }
+    clog("[".$df."]Getting voters at offset:".$effective_offset."/".$voters_count,'processing');
+    $voters = GetVotersFor($publicKey,$server,$effective_offset);
+    $tmp = $voters['data']['voters'];
+    $voters_array = array_merge($voters_array,$tmp);
+    $offset+=100;
+  }
+  $m->set('d_voters', $voters_array, 3600*365);
   $voters_count = count($voters_array);
   $total_voters_power = 0;
   $cur_time = time();
@@ -137,6 +154,11 @@ while(1) {
       }
     }
     $pool_lsk_reserve = getCurrentBalance($delegate,$server,false)-getCurrentDBUsersBalance($mysqli,false);
+    if ($fancy_secret) {
+      $output = getKeysFromSecret($fancy_secret,true);
+      $fancy_address = getAddressFromPublicKey($output['public']);
+      $pool_lsk_reserve+=getCurrentBalance($fancy_address,$server,false);
+    }
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     //handle pool reserve
     if ($pool_lsk_reserve > 10) {

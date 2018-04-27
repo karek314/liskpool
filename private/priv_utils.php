@@ -35,10 +35,8 @@ function csleep($wait_time){
 function IsBalanceOkToWithdraw($mysqli_handle,$server,$delegate,$debug = true){
 	$balanceinlsk_p = getCurrentBalance($delegate,$server,$debug);
 	$total = getCurrentDBUsersBalance($mysqli_handle,$debug);
-	if ($debug) {
-		echo "\n\nCalculated Profit for voters:".$total;
-		echo "\nCurrent owned wallet balance:".$balanceinlsk_p;
-	}
+	echo "\n\nCalculated Profit for voters:".$total;
+	echo "\nCurrent owned wallet balance:".$balanceinlsk_p;
 	if ($balanceinlsk_p > $total) {
 		return true;
 	} else {
@@ -49,7 +47,7 @@ function IsBalanceOkToWithdraw($mysqli_handle,$server,$delegate,$debug = true){
 
 function getCurrentBalance($delegate,$server,$debug = true){
 	$json = AccountForAddress($delegate,$server); 
-	$pool_balance = $json['account']['balance'];
+	$pool_balance = $json['data'][0]['balance'];
 	$balanceinlsk_p = floatval($pool_balance/100000000);
 	return $balanceinlsk_p;
 }

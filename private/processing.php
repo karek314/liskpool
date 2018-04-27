@@ -20,13 +20,14 @@ while(1) {
 	$lisk_host = $m->get('lisk_host');
 	$lisk_port = $m->get('lisk_port');
 	$df++;
-	clog("[".$df."]Getting last 100 blocks forged...\n",'processing');
+	clog("[".$df."]Getting last 100 blocks forged...",'processing');
 	//Retrive Public Key
 	$json = AccountForAddress($delegate,$server);
-	$publicKey = $json['account']['publicKey'];
+	$publicKey = $json['data'][0]['publicKey'];
+	clog("[".$df."]PublicKey:".$publicKey,'processing');
 	//Retrive last forged block
 	$forged_block_json = GetBlocksBy($publicKey,$server); 
-	$block_jarray = $forged_block_json['blocks'];
+	$block_jarray = $forged_block_json['data'];
 	$blocks_count = count($block_jarray);
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
 	if ($blocks_count>0) {
@@ -36,6 +37,7 @@ while(1) {
 			$splitted = new Math_BigInteger('0');
 			$forged_block = $value['height'];
 			$forged_block_revenue = new Math_BigInteger($value['reward']);
+			//$forged_block_revenue = new Math_BigInteger('500000000'); //Force debug
 			clog("[".$key."]Forged Block: ".$forged_block." with reward:".$forged_block_revenue->toString(),'processing');
 			$task = "SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1";	
 			$query = mysqli_query($mysqli,$task) or die("Database Error");	
@@ -43,9 +45,10 @@ while(1) {
 				if ($forged_block_revenue != 0) {
 					clog("Forged block at height:".$forged_block,'processing');
 					//Retrive current voters
-					$voters = GetVotersFor($publicKey,$server);
 					$voters_array = null;
-					$voters_array = $voters['accounts'];
+					$voters_array = $m->get('d_voters');
+					$voters_count = count($voters_array);
+					clog("Current voters count read form memory:".$voters_count,'processing');
 					if (!$voters_array) {
 						clog("[".$df."]Couldn't get voters list, sleeping 10s then breaking to main loop and retrying...",'processing');
 						csleep(10);
@@ -56,7 +59,6 @@ while(1) {
 						$query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
 						$affected = $mysqli -> affected_rows;
 					}
-
 					//Add Likstats contributors
 					$liskstats_task = "SELECT DISTINCT object FROM liskstats";
 					$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
@@ -88,7 +90,6 @@ while(1) {
 						$t_array = array('username' => NULL,'address' => $value,'publicKey' => '','balance' => $single_weight);
 						array_push($voters_array, $t_array);
 					}
-					
 					if ((int)$support_standby_delegates > 0) {
 						clog("Support standby delegates count:".$support_standby_delegates,'processing');
 						$stndby_delegates = GetDelegateList($support_standby_delegates,'101',$server)['delegates'];

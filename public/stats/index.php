@@ -15,22 +15,20 @@ $minedblocks = $m->get('minedblocks');
 
 //get cached delegate acc
 $delegate_account = $m->get('delegate_account');
-$publicKey = $delegate_account['account']['publicKey'];
-$pool_balance = $delegate_account['account']['balance'];
-$username = $delegate_account['account']['username'];
+$publicKey = $delegate_account['data'][0]['publicKey'];
+$pool_balance = $delegate_account['data'][0]['balance'];
+$username = $delegate_account['data'][0]['delegate']['username'];
 $balanceinlsk_p = floatval($pool_balance/100000000);
 
 //get cached d_data
 $d_data = $m->get('d_data');
-$d_data = $d_data['delegate'];
-$rank = $d_data['rate'];
-$approval = $d_data['approval'];
-$productivity = $d_data['productivity'];
-$missedblocks = $d_data['missedblocks'];
+$rank = $d_data['data'][0]['rank'];
+$approval = $d_data['data'][0]['approval'];
+$productivity = $d_data['data'][0]['productivity'];
+$missedblocks = $d_data['data'][0]['missedBlocks'];
 
 //get cached voters
-$d_voters = $m->get('d_voters');
-$voters_array = $d_voters['accounts'];
+$voters_array = $m->get('d_voters');
 $voters_count = count($voters_array);
 $total_voters_power = 0;
 foreach ($voters_array as $key => $value) {

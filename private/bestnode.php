@@ -31,6 +31,7 @@ while(1) {
       clog("[".$i."]Checking node: ".$curr_host.':'.$curr_port,'bestnode');
       $custom = $protocol.'://'.$curr_host.':'.$curr_port.'/';
       $block = NodeStatus($custom);
+      $block = $block["data"];
       array_push($heights, $block["height"]);
       clog("Height: ".$block["height"],'bestnode');
     }
@@ -43,7 +44,6 @@ while(1) {
     $m->set('lisk_host', $best_host, 3600*365);
     $m->set('lisk_port', $best_port, 3600*365);
     $m->set('lisk_protocol', $protocol, 3600*365);
-    
     $lisk_host_tmp = $m->get('lisk_host');
     $lisk_port_tmp = $m->get('lisk_port');
     clog("Current lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp,'bestnode');
@@ -56,7 +56,6 @@ while(1) {
     $lisk_port_tmp = $m->get('lisk_port');
     clog("Current lisk node is set to: ".$lisk_host_tmp.':'.$lisk_port_tmp,'bestnode');
   }
-
   $end_time = time();
   $took = $end_time - $start_time;
   $time_sleep = 10-$took;

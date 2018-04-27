@@ -1,6 +1,6 @@
 <?php
-$lisk_nodes = array(0 => 'localhost');
-$lisk_ports = array(0 => '8000');
+$lisk_nodes = array('localhost');
+$lisk_ports = array('8000');
 return array(
     'host' => 'localhost',
     'username' => 'root',
@@ -13,7 +13,6 @@ return array(
 	'pool_fee_payout_address' => '',
 	'delegate_address' => '',
 	'payout_threshold' => '0.2',
-	'fixed_withdraw_fee' => '0.1',
 	'withdraw_interval_in_sec' => '604800',
 	'secret' => 'passphrase1',
 	'secondSecret' => '',

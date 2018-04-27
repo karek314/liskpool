@@ -14,18 +14,17 @@ $row = mysqli_fetch_row($response);
 $forged_blocks = $row[0];
 //Retrive Public Key
 $delegate_account = $m->get('delegate_account');
-$publicKey = $delegate_account['account']['publicKey'];
-$pool_balance = $delegate_account['account']['balance'];
-$username = $delegate_account['account']['username'];
+$publicKey = $delegate_account['data'][0]['publicKey'];
+$pool_balance = $delegate_account['data'][0]['balance'];
+$username = $delegate_account['data'][0]['delegate']['username'];
 $balanceinlsk_p = floatval($pool_balance/100000000);
 
 //get forging delegate info
 $d_data = $m->get('d_data');
-$d_data = $d_data['delegate'];
-$rank = $d_data['rate'];
-$approval = $d_data['approval'];
-$productivity = $d_data['productivity'];
-$missedblocks = $d_data['missedblocks'];
+$rank = $d_data['data'][0]['rank'];
+$approval = $d_data['data'][0]['approval'];
+$productivity = $d_data['data'][0]['productivity'];
+$missedblocks = $d_data['data'][0]['missedBlocks'];
 
 $last_update = file_get_contents('../../index.html');
 $tmp = explode('<p style="text-align:right">', $last_update);

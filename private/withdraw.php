@@ -6,15 +6,17 @@ require_once('logging.php');
 require_once('../lisk-php/main.php');
 $thread_file = "php ".realpath(dirname(__FILE__))."/wthread.php";
 $threads = ((int)shell_exec("cat /proc/cpuinfo | grep processor | wc -l")*2)-1;
-$payout_threshold = $config['payout_threshold'];
+$payout_threshold = floatval($config['payout_threshold']);
 $withdraw_interval_in_sec = $config['withdraw_interval_in_sec'];
-$fixed_withdraw_fee = $config['fixed_withdraw_fee'];
 $delegate = $config['delegate_address'];
 $secret1 = $config['secret'];
 $secret2 = $config['secondSecret'];
 $fancy_secret = $config['fancy_withdraw_hub'];
 $protocol = $config['protocol'];
 $public_directory = $config['public_directory'];
+$payout_threshold = LSK_BASE * $payout_threshold;
+$payout_threshold = new Math_BigInteger($payout_threshold);
+$lsk = new Math_BigInteger(LSK_BASE);
 
 while(1){
 	$m = new Memcached();
@@ -23,46 +25,64 @@ while(1){
   	$lisk_port = $m->get('lisk_port');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
 	$withdraw_array = array();
-	$required_balance = 0;
-	if (IsBalanceOkToWithdraw($mysqli,$server,$delegate)) {
+	$required_balance = new Math_BigInteger('0');
+	if (IsBalanceOkToWithdraw($mysqli,$server,$delegate,false)) {
   		$json = AccountForAddress($delegate,$server);
-  		$publicKey = $json['account']['publicKey'];
+  		$publicKey = $json['data'][0]['publicKey'];
 		$existQuery = "SELECT address,balance FROM miners WHERE balance!='0'";
 		$existResult = mysqli_query($mysqli,$existQuery)or die("Database Error");
 		while ($row=mysqli_fetch_row($existResult)){
 			$payer_adr = $row[0];
-			$balance = $row[1];
-			$balanceinlsk = floatval($balance/100000000);
-			clog("-------------------------------------------",'withdraw');
-			clog($payer_adr.' -> '.$balanceinlsk,'withdraw');
-			if ($balanceinlsk > $payout_threshold) {
-				clog("Adding to withdraw queue\n",'withdraw');
-				$withdraw_array[$payer_adr] = $balanceinlsk;
-				$required_balance+=$balanceinlsk;
+			$balance = new Math_BigInteger($row[1]);
+			list($balance_quotient, $balance_reminder) = $balance->divide($lsk);
+			$balanceinlsk = $balance_quotient->toString();
+			$valueAsFloat = floatval($balance_quotient->toString().".".$balance_reminder->toString());
+			if ($balance->compare($payout_threshold) > 0) {
+				clog("Address:".$payer_adr." - Adding to withdraw queue ".$valueAsFloat." LSK",'withdraw');
+				$withdraw_array[$payer_adr] = $balance->toString();
+				$required_balance = $required_balance->add($balance);
 			} else {
-				clog("Not exceeded threshold\n",'withdraw');
+				clog("Address:".$payer_adr." - Not exceeded threshold ".$balance->toString()."/".$payout_threshold->toString(),'withdraw');
 			}
 		}
 		$wcount = count($withdraw_array);
 		$txleft = $wcount;
 		clog($wcount." eligible for withdraw",'withdraw');
-		clog($required_balance." required for withdraw",'withdraw');
-		if ($fancy_secret && $required_balance) {
+		list($total_balance_quotient, $total_balance_reminder) = $required_balance->divide($lsk);
+		$required_balance_float = floatval($total_balance_quotient->toString().".".$total_balance_reminder->toString());
+		clog($required_balance_float." required for withdraw",'withdraw');
+		if ($fancy_secret && $required_balance->toString() != "0") {
 			$output = getKeysFromSecret($fancy_secret,true);
 			$fancy_address = getAddressFromPublicKey($output['public']);
-			$required_balance+=1.0;
-			clog("Transfering:".$required_balance." LSK for withdraw to fancy hub: ".$fancy_address,'withdraw');
-			$required_balance = $required_balance * 100000000;
-			$required_balance-=AccountForAddress($fancy_address,$server)["account"]["balance"];
-			if (!$secret2) {
-				$tx = CreateTransaction($fancy_address, $required_balance, $secret1, false, false, -10);
+			$OneBdd = new Math_BigInteger('1');
+			$required_balance = $required_balance->add($lsk);
+			list($totalPlusOne_balance_quotient, $totalPlusOne_balance_reminder) = $required_balance->divide($lsk);
+			$required_balance_floatPlusOne = floatval($totalPlusOne_balance_quotient->toString().".".$totalPlusOne_balance_reminder->toString());
+			clog("Transfering:".$required_balance_floatPlusOne."LSK for withdraw to fancy hub: ".$fancy_address,'withdraw');
+			$fancy_withdraw_hub_balance = new Math_BigInteger(AccountForAddress($fancy_address,$server)["data"][0]["balance"]);
+			$topup_balance = $required_balance->subtract($fancy_withdraw_hub_balance);
+			clog("Top up in Beddows:".$topup_balance->toString(),'withdraw');
+			if ($topup_balance->compare($OneBdd) > 0) {
+				if ($required_balance->toString() != "0") {
+					list($topup_balance_quotient, $topup_balance_reminder) = $topup_balance->divide($lsk);
+					$topupFloatVal = floatval($topup_balance_quotient->toString().".".$topup_balance_reminder->toString());
+					clog("Top up:".$topupFloatVal."LSK",'withdraw');
+					if (!$secret2) {
+						$tx = CreateTransaction($fancy_address, $topup_balance->toString(), $secret1, false, false, -10);
+					} else {
+						$tx = CreateTransaction($fancy_address, $topup_balance->toString(), $secret1, $secret2, false, -10);
+					}
+					$tx_resp = json_encode(SendTransaction(json_encode($tx),$server));
+					clog("Sleeping for: 120 sec, waiting for hub transfer ".$tx['id']." with status[".$tx_resp."] to settle",'withdraw');
+					csleep(120);
+				} else {
+					clog("Amount on fancy hub correct! 1",'withdraw');
+					csleep(2);
+				}
 			} else {
-				$tx = CreateTransaction($fancy_address, $required_balance, $secret1, $secret2, false, -10);
+				clog("Amount on fancy hub correct! 2",'withdraw');
+				csleep(2);
 			}
-			$tx_resp = SendTransaction(json_encode($tx),$server);
-			$txid = $tx_resp['transactionId'];
-			clog("Sleeping for: 120 sec, waiting for hub transfer[".$txid."] to settle",'withdraw');
-			csleep(120);
 		}
 
 		$pipes = array();
