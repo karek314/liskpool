@@ -2,6 +2,7 @@
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../../config.php');
 require_once('../../lisk-php/main.php');
+require_once('../priv_utils.php');
 
 while(1){
 	$accounts = array();
