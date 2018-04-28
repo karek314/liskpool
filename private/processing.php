@@ -36,8 +36,8 @@ while(1) {
 			$total_voters_power = new Math_BigInteger('0');
 			$splitted = new Math_BigInteger('0');
 			$forged_block = $value['height'];
-			//$forged_block_revenue = new Math_BigInteger($value['reward']);
-			$forged_block_revenue = new Math_BigInteger('500000000'); //Force debug
+			$forged_block_revenue = new Math_BigInteger($value['reward']);
+			//$forged_block_revenue = new Math_BigInteger('500000000'); //Force debug
 			clog("[".$key."]Forged Block: ".$forged_block." with reward:".$forged_block_revenue->toString(),'processing');
 			$task = "SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1";	
 			$query = mysqli_query($mysqli,$task) or die("Database Error");	
