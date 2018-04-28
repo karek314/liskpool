@@ -73,26 +73,11 @@ while(1) {
   $pool_productivity = $d_data['data'][0]['productivity'];
   //Retrive voters
   $voters_array = null;
-  clog("[".$df."]Getting initial voters list...",'processing');
-  $voters = GetVotersFor($publicKey,$server);
-  $voters_count = $voters['data']['votes'];
-  $voters_array = $voters['data']['voters'];
-  clog("[".$df."]Count:".$voters_count,'processing');
-  $offset = 100;
-  while ($offset <= $voters_count+100) {
-    if ($offset > $voters_count) {
-      $effective_offset = $voters_count;
-    } else {
-      $effective_offset = $offset;
-    }
-    clog("[".$df."]Getting voters at offset:".$effective_offset."/".$voters_count,'processing');
-    $voters = GetVotersFor($publicKey,$server,$effective_offset);
-    $tmp = $voters['data']['voters'];
-    $voters_array = array_merge($voters_array,$tmp);
-    $offset+=100;
-  }
-  $m->set('d_voters', $voters_array, 3600*365);
+  clog("[".$df."]Reading voters list from cache...",'processing');
+  $cached = ReadCache('voters_list');
+  $voters_array = json_decode($cached,true);
   $voters_count = count($voters_array);
+  clog("[".$df."]Voters List Count:".$voters_count,'processing');
   $total_voters_power = 0;
   $cur_time = time();
   $cur_voters = array();

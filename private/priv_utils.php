@@ -70,6 +70,19 @@ function getCurrentDBUsersBalance($mysqli_handle,$debug = true){
 }
 
 
+function WriteCache($key,$data){
+	if (!file_exists('cache')) {
+		mkdir('cache');
+	}
+	file_put_contents("cache/".$key, $data);
+}
+
+
+function ReadCache($key){
+	return file_get_contents("cache/".$key);
+}
+
+
 function AppendChartData($subdir,$value,$time,$name,$public_directory){
   if (!$subdir) {
     $real_path = realpath('../'.$public_directory.'/data').'/'.$name.'.json';

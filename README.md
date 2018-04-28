@@ -74,6 +74,8 @@ Start Lisk core node, enable forging directly or use [lisk-best-forger](https://
 Navigate to <b>/private/</b> directory and start background scripts:<br>
 <br><b>Node height checker</b>, necessary even there is only one defined
 <pre>screen -dmS bestnode php bestnode.php</pre>
+<br><b>Updating cache</b> - this script updates and cache data
+<pre>screen -dmS cacher php cacher.php</pre>
 <br><b>Block Processing</b> - this script checks if delegate forged new block, if so it will split as defined in config
 <pre>screen -dmS processing php processing.php</pre>
 <br><b>Updating charts</b> - this script updates data to keep charts up to date.
