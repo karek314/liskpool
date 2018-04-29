@@ -100,7 +100,7 @@ screen -x processing
 
 ## Forging
 Liskpool works great along with [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover), it's compatible with shared library.
-Just pull it main directory. Then follow instruction from [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover) repository.
+Just pull it in main directory. Then follow instruction from [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover) repository.
 ```sh
 git clone https://github.com/karek314/Lisk-forging-failover
 cd Lisk-forging-failover
