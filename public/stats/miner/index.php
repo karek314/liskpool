@@ -237,6 +237,7 @@ echo '<!DOCTYPE html>
   transform: translateX(50%);
 }
 </style>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head> 
 <body class="blog-home-page">   
     <div class="header-wrapper header-wrapper-blog-home">
@@ -304,7 +305,7 @@ echo '</center>';
 if (file_exists('../../data/voters/'.$miner.'.json')) {
   $tmp = file_get_contents('../../data/voters/'.$miner.'.json');
   if (strlen($tmp)>5) {
-    echo '<br><font color="264348"><div id="container_balance"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading ThePool balance chart...</div>';
+    echo '<br><div id="container_balance"></div>';
   } else {
     balanceChartError();
   }
@@ -314,7 +315,7 @@ if (file_exists('../../data/voters/'.$miner.'.json')) {
 if (file_exists('../../data/voters/balance/'.$miner.'.json')) {
   $tmp = file_get_contents('../../data/voters/balance/'.$miner.'.json');
   if (strlen($tmp)>5) {
-  echo '<br><font color="264348"><div id="container_balance_network"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading Lisk network balance chart...</div></center>';
+  echo '<br><div id="container_balance_network"></div>';
   } else {
     networkBalanceChartError();
   }
@@ -324,7 +325,7 @@ if (file_exists('../../data/voters/balance/'.$miner.'.json')) {
 if (file_exists('../../data/voters/withdraw/'.$miner.'.json')) {
   $tmp = file_get_contents('../../data/voters/withdraw/'.$miner.'.json');
   if (strlen($tmp)>5) {
-  echo '<br><font color="264348"><div id="container_balance_withdraw"><center><img height="54" width="54" src="/assets/images/loading.gif"/><br>Loading withdraw amount chart...</div></center>';
+  echo '<br><div id="container_balance_withdraw"></div>';
   } else {
     withdrawChartError();
   }
@@ -416,10 +417,7 @@ while ($row=mysqli_fetch_row($existResult)){
     <!-- Form iOS fix -->
     <script  type="text/javascript" src="/assets/plugins/isMobile/isMobile.min.js"></script>
     <script  type="text/javascript" src="/assets/js/form-mobile-fix.js"></script>     
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="/charts/js/highstock.js"></script>
-    <script src="/charts/js/modules/exporting.js"></script> 
-    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>    
         <script>
         $(".button-fill").hover(function () {
         $(this).children(".button-inside").addClass("full");
@@ -428,242 +426,225 @@ while ($row=mysqli_fetch_row($existResult)){
         });
     </script>
     <script type="text/javascript">
-$(function () {
-    $.getJSON("/data/voters/'.$miner.'.json", function (data) {
-        $("#container_balance").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: "hour",
+Plotly.d3.json("/data/voters/'.$miner.'.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: "Account balance on pool",
+        x: [],
+        y: [],
+        line: {color: "#17BECF"}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: "Account balance on pool",
+        plot_bgcolor: "rgba(124, 1, 1, 0)",
+        paper_bgcolor: "rgba(125,1,1,0)",
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
                 count: 1,
-                text: "1h"
+                label: "1h",
+                step: "hour",
+                stepmode: "backward"
             },{
-                type: "hour",
                 count: 12,
-                text: "12h"
+                label: "12h",
+                step: "hour",
+                stepmode: "backward"
             },{
-                type: "day",
                 count: 1,
-                text: "1d"
-            }, {
-                type: "week",
+                label: "1d",
+                step: "day",
+                stepmode: "backward"
+            },{
+                count: 3,
+                label: "3d",
+                step: "day",
+                stepmode: "backward",
+            },{
                 count: 1,
-                text: "1w"
-            }, {
-                type: "month",
+                label: "1w",
+                step: "week",
+                stepmode: "backward"
+            },{
                 count: 1,
-                text: "1m"
-            }, {
-                type: "month",
+                label: "1m",
+                step: "month",
+                stepmode: "backward"
+            },{
                 count: 6,
-                text: "6m"
-            }, {
-                type: "year",
+                label: "6m",
+                step: "month",
+                stepmode: "backward"
+            },{
                 count: 1,
-                text: "1y"
-            }, {
-                type: "all",
-                text: "All"
-            }],
-            selected: 1
+                label: "1y",
+                step: "year",
+                stepmode: "backward"
+            },{
+                step: "all"
+            }]},
+            rangeslider: {},type: "date"
         },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            title : {
-                text : "Account balance on ThePool (LSK)"
-            },
-            subtitle: {
-                text: "Entitled account balance after split"
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            series : [{
-                name : "Balance (LSK)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get("rgba")]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 8
-                }
-            }]
-        });
-    });
-    $.getJSON("/data/voters/balance/'.$miner.'.json", function (data) {
-        $("#container_balance_network").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: "hour",
-                count: 1,
-                text: "1h"
-            },{
-                type: "hour",
-                count: 12,
-                text: "12h"
-            },{
-                type: "day",
-                count: 1,
-                text: "1d"
-            }, {
-                type: "week",
-                count: 1,
-                text: "1w"
-            }, {
-                type: "month",
-                count: 1,
-                text: "1m"
-            }, {
-                type: "month",
-                count: 6,
-                text: "6m"
-            }, {
-                type: "year",
-                count: 1,
-                text: "1y"
-            }, {
-                type: "all",
-                text: "All"
-            }],
-            selected: 1
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            title : {
-                text : "Account balance on Lisk network (LSK)"
-            },
-            subtitle: {
-                text: "Current balance on Lisk network account"
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            series : [{
-                name : "Balance (LSK)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get("rgba")]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 8
-                }
-            }]
-        });
-    });
-    $.getJSON("/data/voters/withdraw/'.$miner.'.json", function (data) {
-        $("#container_balance_withdraw").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: "hour",
-                count: 1,
-                text: "1h"
-            },{
-                type: "hour",
-                count: 12,
-                text: "12h"
-            },{
-                type: "day",
-                count: 1,
-                text: "1d"
-            }, {
-                type: "week",
-                count: 1,
-                text: "1w"
-            }, {
-                type: "month",
-                count: 1,
-                text: "1m"
-            }, {
-                type: "month",
-                count: 6,
-                text: "6m"
-            }, {
-                type: "year",
-                count: 1,
-                text: "1y"
-            }, {
-                type: "all",
-                text: "All"
-            }],
-            selected: 4
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            title : {
-                text : "Amount of LSK on withdraw"
-            },
-            subtitle: {
-                text: "Amount of LSK sent from pool to your account"
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            series : [{
-                name : "Amount (LSK)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get("rgba")]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 8
-                }
-            }]
-        });
-    });
+        yaxis: {
+            autorange: true,
+            type: "linear"
+        }
+    };
+    Plotly.newPlot("container_balance", data, layout);
 });
-
-function zip(a, b) {
-    return a.map(function(x, i) {
-    return [x, b[i]];
-    });
-}
+Plotly.d3.json("/data/voters/balance/'.$miner.'.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: "Account balance on Lisk network",
+        x: [],
+        y: [],
+        line: {color: "#17BECF"}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: "Account balance on Lisk network",
+        plot_bgcolor: "rgba(124, 1, 1, 0)",
+        paper_bgcolor: "rgba(125,1,1,0)",
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: "1h",
+                step: "hour",
+                stepmode: "backward"
+            },{
+                count: 12,
+                label: "12h",
+                step: "hour",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1d",
+                step: "day",
+                stepmode: "backward"
+            },{
+                count: 3,
+                label: "3d",
+                step: "day",
+                stepmode: "backward",
+            },{
+                count: 1,
+                label: "1w",
+                step: "week",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1m",
+                step: "month",
+                stepmode: "backward"
+            },{
+                count: 6,
+                label: "6m",
+                step: "month",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1y",
+                step: "year",
+                stepmode: "backward"
+            },{
+                step: "all"
+            }]},
+            rangeslider: {},type: "date"
+        },
+        yaxis: {
+            autorange: true,
+            type: "linear"
+        }
+    };
+    Plotly.newPlot("container_balance_network", data, layout);
+});
+Plotly.d3.json("/data/voters/withdraw/'.$miner.'.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: "Amount of LSK on withdraw",
+        x: [],
+        y: [],
+        line: {color: "#17BECF"}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: "Amount of LSK on withdraw",
+        plot_bgcolor: "rgba(124, 1, 1, 0)",
+        paper_bgcolor: "rgba(125,1,1,0)",
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: "1h",
+                step: "hour",
+                stepmode: "backward"
+            },{
+                count: 12,
+                label: "12h",
+                step: "hour",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1d",
+                step: "day",
+                stepmode: "backward"
+            },{
+                count: 3,
+                label: "3d",
+                step: "day",
+                stepmode: "backward",
+            },{
+                count: 1,
+                label: "1w",
+                step: "week",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1m",
+                step: "month",
+                stepmode: "backward"
+            },{
+                count: 6,
+                label: "6m",
+                step: "month",
+                stepmode: "backward"
+            },{
+                count: 1,
+                label: "1y",
+                step: "year",
+                stepmode: "backward"
+            },{
+                step: "all"
+            }]},
+            rangeslider: {},type: "date"
+        },
+        yaxis: {
+            autorange: true,
+            type: "linear"
+        }
+    };
+    Plotly.newPlot("container_balance_withdraw", data, layout);
+});
 </script>
 
 
