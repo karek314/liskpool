@@ -6,7 +6,6 @@ This is first and fully open source Lisk delegate forging pool (also known as de
 <a href="https://memcached.org" target="_blank">Memcached</a><br>
 <a href="http://nginx.org" target="_blank">Nginx</a><br>
 <a href="https://lisk.io/documentation" target="_blank">Lisk Node</a><br>
-<a href="http://www.highcharts.com" target="_blank">Highcharts (included in project)</a><br>
 
 ## Important
 Only <b>public</b> directory must be served with webserver. While <b>config.php</b> and <b>private</b> should not be served.
