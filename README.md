@@ -68,8 +68,6 @@ return array(
 
 (Managing and starting liskpool will be moved under one shell script)
 
-Start Lisk core node, enable forging directly or use [lisk-best-forger](https://github.com/karek314/lisk-best-forger). You can forge with different node that one used for pool.
-
 Navigate to <b>/private/</b> directory and start background scripts:<br>
 <br><b>Node height checker</b>, necessary even there is only one defined
 <pre>screen -dmS bestnode php bestnode.php</pre>
