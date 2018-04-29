@@ -5,7 +5,7 @@ This is first and fully open source Lisk delegate forging pool (also known as de
 <b>Legacy</b> branch - before 1.0.0<br>
 
 ### Tokens and Dapps
-LiskPool will allow to distribute own tokens to voters in further updates
+In further updates LiskPool will allow to prepare or pregenerate genesis blocks to custom dapps allowing to distribute own tokens to voters.
 
 # Requirements
 <a href="https://mariadb.org" target="_blank">MariaDB server</a><br>
@@ -100,15 +100,14 @@ Example
 screen -x processing
 </pre>
 
-## Forging productivity
-(will be updated soon)
-Optionally you can use [lisk-best-forger](https://github.com/karek314/lisk-best-forger) background script to improve forging productivity.
+## Forging
+Liskpool works great along with [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover), it's compatible with shared library.
+Just pull it main directory. Then follow instruction from [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover) repository.
 <pre>
-cd private/forging
-nano config.php
+	git clone https://github.com/karek314/Lisk-forging-failover
+	cd Lisk-forging-failover
+	bash setup.sh
 </pre>
-In private/config.php you need to add trusted nodes and it's ports. Each specified server needs to have whitelisted IP address of server which will be used to run this script. As described [here](https://docs.lisk.io/).
-Passphrase will be taken from main configuration file. For more details visit main [lisk-best-forger](https://github.com/karek314/lisk-best-forger) repository.
 
 #### Usage
 <pre>
