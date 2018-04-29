@@ -107,12 +107,6 @@ cd Lisk-forging-failover
 bash setup.sh
 ```
 
-#### Usage
-<pre>
-screen -dmS bestforger php daemon.php
-</pre>
-This script should be used along with trusted servers only via SSL.
-
 # Public API
 <b>Specified voter balance data for balance chart, respectively entitled pool balance, network balance and withdraw amount.</b>
 <pre>
