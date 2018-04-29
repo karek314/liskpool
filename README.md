@@ -168,4 +168,4 @@ In past all chart data was stored in database tables, however with millions of r
 If you want to contribute, fork and pull request or open issue.
 
 # License
-Everything is under MIT License (MIT) except [Front-end (site theme) which is paid.](http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/) Sorry, at first it wasn't meant to be open sourced thus i just picked paid template <br> At some point it will be rewritten from scratch.
+Everything is under MIT License (MIT) including charting library Plotly.js except [Front-end (site theme) which is paid.](http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/) Sorry, at first it wasn't meant to be open sourced thus i just picked paid template <br> At some point it will be rewritten from scratch.
