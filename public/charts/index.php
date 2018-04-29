@@ -31,6 +31,7 @@ echo '<!DOCTYPE html>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head> 
 
 
@@ -75,13 +76,13 @@ echo '<!DOCTYPE html>
             <form id="contact-form" class="contact-form form" method="post" action="push.php">                    
                 <div class="row text-left">
                     <div class="contact-form-inner col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-sm-offset-0 xs-offset-0">
-                        <div class="row"> ';
-                        echo '<div id="container"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading approval chart</center></div><br>';
-                        echo '<br><br><div id="container_rank"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading rank chart</center></div><br>';
-                        echo '<br><br><div id="container_balance"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading balance chart</center></div><br>';
-                        echo '<br><br><div id="container_miners"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading vote count chart</center></div><br>';
-                        echo '<br><br><div id="container_reserve"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading balance reserve chart</center></div><br>';
-                        echo '<br><br><div id="container_productivity"><center><img height="54" width="54" src="../assets/images/loading.gif"/><br>Loading producitvity chart</center></div><br>';
+                        <div class="row">';
+                        echo '<div id="container"></div><br>';
+                        echo '<br><br><div id="container_rank"></div><br>';
+                        echo '<br><br><div id="container_balance"></div><br>';
+                        echo '<br><br><div id="container_miners"></center></div><br>';
+                        echo '<br><br><div id="container_reserve"></div><br>';
+                        echo '<br><br><div id="container_productivity"><</div><br>';
                         echo '</div><!--//row-->
                     </div>
                 </div><!--//row-->
@@ -146,531 +147,452 @@ echo '<!DOCTYPE html>
     <!-- Form iOS fix -->
     <script  type="text/javascript" src="../assets/plugins/isMobile/isMobile.min.js"></script>
     <script  type="text/javascript" src="../assets/js/form-mobile-fix.js"></script>
-    
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="./js/highstock.js"></script>
-    <script src="./js/modules/exporting.js"></script> 
-    '; ?>
-    <script type="text/javascript">
-$(function () {
-    $.getJSON("/data/approval.json", function (data) {
-        $("#container").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 1,
-                text: '1h'
-            },{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            },{
-                type: 'day',
-                count: 1,
-                text: '1d'
-            },{
-                type: 'day',
-                count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
-                count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
-                count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
-                count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
-                count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Community Approval (%)"
-            },
-            subtitle: {
-                text: 'Approval in % of network tokens distribution'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
+    ';?>
 
-            series : [{
-                name : "Community Approval (%)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-    setTimeout(rank, 0);
-    setTimeout(balance, 0);
-    setTimeout(miners, 0);
-    setTimeout(reserve, 0);
-    setTimeout(productivity, 0);
+<script type="text/javascript">
+Plotly.d3.json("/data/approval.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Community Approval (%)',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Community Approval (%)',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 12,
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
+            },{
+                count: 3,
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
+                count: 1,
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container', data, layout);
+});
+Plotly.d3.json("/data/rank.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Rank',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Rank',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 12,
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
+            },{
+                count: 3,
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
+                count: 1,
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container_rank', data, layout);
+});
+Plotly.d3.json("/data/balance.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Account balance',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Account balance',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 12,
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
+            },{
+                count: 3,
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
+                count: 1,
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container_balance', data, layout);
+});
+Plotly.d3.json("/data/reserve.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Reserve balance',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Reserve balance',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 12,
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
+            },{
+                count: 3,
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
+                count: 1,
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container_reserve', data, layout);
+});
+Plotly.d3.json("/data/productivity.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Forged blocks (% lifetime)',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Forged blocks (% lifetime)',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
+                count: 1,
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 12,
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
+            },{
+                count: 3,
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
+                count: 1,
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
+                count: 1,
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container_productivity', data, layout);
 });
 
-function rank() {
-    $.getJSON("/data/rank.json", function (data) {
-        $("#container_rank").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
+
+
+
+Plotly.d3.json("/data/voters.json", function(err, rows){
+    var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'Votes Count',
+        x: [],
+        y: [],
+        line: {color: '#17BECF'}
+    }
+    for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        trace1.x.push(row[0]);
+        trace1.y.push(row[1]);
+    }
+    var data = [trace1];
+    var layout = {
+        title: 'Votes Count',
+        plot_bgcolor: 'rgba(124, 1, 1, 0)',
+        paper_bgcolor: 'rgba(125,1,1,0)',
+        xaxis: {
+            autorange: true,
+            rangeselector: {buttons: [{
                 count: 1,
-                text: '1h'
+                label: '1h',
+                step: 'hour',
+                stepmode: 'backward'
             },{
-                type: 'hour',
                 count: 12,
-                text: '12h'
+                label: '12h',
+                step: 'hour',
+                stepmode: 'backward'
             },{
-                type: 'day',
                 count: 1,
-                text: '1d'
+                label: '1d',
+                step: 'day',
+                stepmode: 'backward'
             },{
-                type: 'day',
                 count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
+                label: '3d',
+                step: 'day',
+                stepmode: 'backward',
+            },{
                 count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
+                label: '1w',
+                step: 'week',
+                stepmode: 'backward'
+            },{
                 count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
                 count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+            },{
                 count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
+                label: '1y',
+                step: 'year',
+                stepmode: 'backward'
+            },{
+                step: 'all'
+            }]},
+            rangeslider: {},type: 'date'
         },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Rank"
-            },
-            subtitle: {
-                text: 'Delegate rank'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-
-            series : [{
-                name : "Rank",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-
-};
-
-function balance() {
-    $.getJSON("/data/balance.json", function (data) {
-        $("#container_balance").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 1,
-                text: '1h'
-            },{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            },{
-                type: 'day',
-                count: 1,
-                text: '1d'
-            },{
-                type: 'day',
-                count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
-                count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
-                count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
-                count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
-                count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Balance (LSK)"
-            },
-            subtitle: {
-                text: 'Account balance'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-
-            series : [{
-                name : "Balance (LSK)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-
-};
-
-function reserve() {
-    $.getJSON("/data/reserve.json", function (data) {
-        $("#container_reserve").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 1,
-                text: '1h'
-            },{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            },{
-                type: 'day',
-                count: 1,
-                text: '1d'
-            },{
-                type: 'day',
-                count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
-                count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
-                count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
-                count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
-                count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Reserve balance (LSK)"
-            },
-            subtitle: {
-                text: 'LSK waiting for split and leftover balance reserve'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-            series : [{
-                name : "Reserve balance (LSK)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-
-};
-
-function productivity() {
-    $.getJSON("/data/productivity.json", function (data) {
-        $("#container_productivity").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 1,
-                text: '1h'
-            },{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            },{
-                type: 'day',
-                count: 1,
-                text: '1d'
-            },{
-                type: 'day',
-                count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
-                count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
-                count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
-                count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
-                count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Forged blocks (% lifetime)"
-            },
-            subtitle: {
-                text: 'Lifetime % productivity'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-
-            series : [{
-                name : "Forged blocks (% lifetime)",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-
-};
-
-function miners() {
-    $.getJSON("/data/voters.json", function (data) {
-        $("#container_miners").highcharts("StockChart", {
-            rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 1,
-                text: '1h'
-            },{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            },{
-                type: 'day',
-                count: 1,
-                text: '1d'
-            },{
-                type: 'day',
-                count: 3,
-                text: '3d'
-            }, {
-                type: 'week',
-                count: 1,
-                text: '1w'
-            }, {
-                type: 'month',
-                count: 1,
-                text: '1m'
-            }, {
-                type: 'month',
-                count: 6,
-                text: '6m'
-            }, {
-                type: 'year',
-                count: 1,
-                text: '1y'
-            }, {
-                type: 'all',
-                text: 'All'
-            }],
-            selected: 3
-        },
-            chart: {
-                backgroundColor: "#F5F5F5",
-                polar: true,
-                type: "area"
-            },
-            colors: ["#000000", "#000000", "#000000"],
-            title : {
-                text : "Votes Count"
-            },
-            subtitle: {
-                text: 'Count of votes supporting this delegate'
-            },
-            yAxis: {
-                reversed: false,
-                showFirstLabel: false,
-                showLastLabel: true
-            },
-
-            series : [{
-                name : "Votes Count",
-                data : data,
-                threshold: null,
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 1,
-                        x2: 0,
-                        y2: 0
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
-    });
-
-};
-
-
-function zip(a, b) {
-    return a.map(function(x, i) {
-    return [x, b[i]];
-    });
-}
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    Plotly.newPlot('container_miners', data, layout);
+});
 </script>
 
 
