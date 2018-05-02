@@ -150,7 +150,6 @@ while(1) {
 						clog("Pool revenue -> ".$pool_revenue_string,'processing');
 					}
 					clog("Total Pool Revenue to Split -> ".$forged_block_revenue->toString(),'processing');
-
 					foreach ($voters_array as $key => $value) {
 						$address = $value['address'];
 						$balance = new Math_BigInteger($value['balance']);

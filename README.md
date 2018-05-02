@@ -1,17 +1,14 @@
 # Lisk Pool
 This is first and fully open source Lisk delegate forging pool (also known as delegate reward sharing). Written in PHP.
 
-<b>Master</b> branch from and after 1.0.0 version of lisk core.<br>
-<b>Legacy</b> branch - before 1.0.0<br>
-
 ### Tokens and Dapps
-In further updates LiskPool will allow to prepare or pregenerate genesis blocks to custom dapps allowing to distribute own tokens to voters.
+In further updates LiskPool will allow to prepare or pregenerate genesis blocks to custom dapps allowing to distribute own tokens to voters, exact details yet to be announced by LiskHQ.
 
 # Requirements
 <a href="https://mariadb.org" target="_blank">MariaDB server</a><br>
 <a href="https://memcached.org" target="_blank">Memcached</a><br>
 <a href="http://nginx.org" target="_blank">Nginx</a><br>
-<a href="https://lisk.io/documentation" target="_blank">Lisk Node</a><br>
+<a href="https://lisk.io/" target="_blank">Lisk Node</a><br>
 
 ## Important
 Only <b>public</b> directory must be served with webserver. While <b>config.php</b> and <b>private</b> should not be served.
@@ -158,4 +155,8 @@ In past all chart data was stored in database tables, however with millions of r
 If you want to contribute, fork and pull request or open issue.
 
 # License
-Everything is under MIT License (MIT) including charting library Plotly.js except [Front-end (site theme) which is paid.](http://themes.3rdwavemedia.com/website-templates/responsive-bootstrap-theme-web-development-agencies-devstudio/) Sorry, at first it wasn't meant to be open sourced thus i just picked paid template <br> At some point it will be rewritten from scratch.
+Liskpool - MIT License,<br>
+Opensource libraries used:<br>
+HTML5 Boilerplate v5.0 | MIT License<br>
+Plotly.js | MIT License
+Lisk-PHP | MIT License

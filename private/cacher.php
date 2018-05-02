@@ -8,6 +8,8 @@ $df = 0;
 $delegate = $config['delegate_address'];
 
 while(1) {
+  $m = new Memcached();
+  $m->addServer('localhost', 11211);
   $df++;
   $start_time = time();
   clog("Fetching data...",'cacher');
@@ -30,6 +32,7 @@ while(1) {
   $voters_count = $voters['data']['votes'];
   $voters_array = $voters['data']['voters'];
   clog("[".$df."]Count:".$voters_count,'cacher');
+  $m->set('voters_count', $voters_count, 3600*365);
   $offset = 100;
   $mem=0;
   while ($offset <= $voters_count+100) {
@@ -46,6 +49,20 @@ while(1) {
   }
   $voters_count = count($voters_array);
   clog("[".$df."]Voters Final:".$voters_count,'cacher');
+  //Sorting voters array
+  $voters_array_sorted = $voters_array;
+  $sort = array();
+  foreach($voters_array_sorted as $k=>$v) {
+    $sort['balance'][$k] = $v['balance'];
+  }
+  array_multisort($sort['balance'], SORT_DESC, $voters_array_sorted);
+  $voters_array_sorted = array_slice($voters_array_sorted,0,100);
+  for ($i=0; $i < count($voters_array_sorted); $i++) { 
+    $balance = $voters_array_sorted[$i]['balance'];
+    $voters_array_sorted[$i]['balance'] = array('lsk' => number_format(floatval($balance/100000000), 8),'raw' => $balance);
+    unset($voters_array_sorted[$i]['publicKey']);
+  }
+  $m->set('external_voters_balance', $voters_array_sorted, 3600*365);
   WriteCache('voters_list',json_encode($voters_array));
   $cached = ReadCache('voters_list');
   $rvoters_array = json_decode($cached,true);

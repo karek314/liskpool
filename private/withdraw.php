@@ -84,7 +84,6 @@ while(1){
 				csleep(2);
 			}
 		}
-
 		$pipes = array();
 		foreach ($withdraw_array as $recipient => $balanceinlsk) {
 			$pcount = count($pipes);

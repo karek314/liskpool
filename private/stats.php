@@ -15,28 +15,20 @@ $fancy_secret = $config['fancy_withdraw_hub'];
 while(1) {
   $m = new Memcached();
   $m->addServer('localhost', 11211);
-  $lisk_host = $m->get('lisk_host');
-  $lisk_port = $m->get('lisk_port');
   $df++;
   $start_time = time();
   clog("Fetching data...",'stats');
   $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
-  //Get forged blocks
-  $task = "SELECT count(1) FROM blocks";
-  $response = mysqli_query($mysqli,$task)or die("Database Error");
-  $row = mysqli_fetch_row($response);
-  $minedblocks = $row[0];
-  $m->set('minedblocks', $minedblocks, 3600*365);
-  //Get voters forged amount
-  $task = "SELECT balance,address FROM miners ORDER BY balance DESC LIMIT 100;";
+  //Get first 100 biggst voters and cache it in memory
+  $task = "SELECT balance,address FROM miners WHERE address!='$delegate' ORDER BY balance DESC LIMIT 100;";
   $tresult = mysqli_query($mysqli,$task)or die("Database Error");
   $forged_voters = array();
   while ($row=mysqli_fetch_row($tresult)){
-    $balance = $row[0];
+    $balance = floatval($row[0]/100000000);
     $address = $row[1];
-    array_push($forged_voters, array('balance' => $balance,'address' => $address));
+    array_push($forged_voters, array('balance' => array('lsk' => $balance, 'raw' => $row[0]),'address' => $address));
   }
-  $m->set('forged_voters', $forged_voters, 3600*365);
+  $m->set('internal_voters_balance', $forged_voters, 3600*365);
   //Get last blocks
   $task = "SELECT blockid FROM blocks ORDER BY id DESC LIMIT 50;";
   $tresult = mysqli_query($mysqli,$task)or die("Database Error");

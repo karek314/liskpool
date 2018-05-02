@@ -1,50 +1,61 @@
 <?php
 error_reporting(error_reporting() & ~E_NOTICE);
 $config = include('../../../config.php');
+require_once('../../../lisk-php/main.php');
+$lsk = new Math_BigInteger(LSK_BASE);
 $delegate = $config['delegate_address'];
 $protocol = $config['protocol'];
 $m = new Memcached();
 $m->addServer('localhost', 11211);
 $lisk_host = $m->get('lisk_host');
 $lisk_port = $m->get('lisk_port');
-$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
-$task = "SELECT count(1) FROM blocks";
-$response = mysqli_query($mysqli,$task)or die("Database Error");
-$row = mysqli_fetch_row($response);
-$forged_blocks = $row[0];
-//Retrive Public Key
+
+//Read voters count
+$voters_count = $m->get('voters_count');
+//Read internal voters from memory
+$internal_voters = $m->get('internal_voters_balance');
+//Read external voters balance from memory
+$external_voters = $m->get('external_voters_balance');
+$voters_list = array('internal' => $internal_voters, 'external' => $external_voters, 'total_count' => $voters_count);
+//Read last 50 blocks from memory
+$last_blocks = $m->get('last_blocks');
+//Account info
 $delegate_account = $m->get('delegate_account');
 $publicKey = $delegate_account['data'][0]['publicKey'];
 $pool_balance = $delegate_account['data'][0]['balance'];
 $username = $delegate_account['data'][0]['delegate']['username'];
-$balanceinlsk_p = floatval($pool_balance/100000000);
+$BBalance = new Math_BigInteger($pool_balance);
+list($Bbalance_quotient, $Bbalance_reminder) = $BBalance->divide($lsk);
+$BalancevalueAsFloat = floatval($Bbalance_quotient->toString().".".$Bbalance_reminder->toString());
 
-//get forging delegate info
+//Delegate specfic info
 $d_data = $m->get('d_data');
 $rank = $d_data['data'][0]['rank'];
 $approval = $d_data['data'][0]['approval'];
 $productivity = $d_data['data'][0]['productivity'];
 $missedblocks = $d_data['data'][0]['missedBlocks'];
-
-$last_update = file_get_contents('../../index.html');
-$tmp = explode('<p style="text-align:right">', $last_update);
-$last_update = explode('</p>', $tmp[1])[0];
-
-$pool_balance_array = array('lsk' => $balanceinlsk_p, 'raw' => $pool_balance);
-$blocks = array('forged' => (int)$forged_blocks, 'missed' => $missedblocks);
+$forged_blocks = $d_data['data'][0]['producedBlocks'];
+$supportingBalance = $d_data['data'][0]['vote'];
+$BsupportingBalance = new Math_BigInteger($supportingBalance);
+list($Tbalance_quotient, $Tbalance_reminder) = $BsupportingBalance->divide($lsk);
+$SupportingvalueAsFloat = floatval($Tbalance_quotient->toString().".".$Tbalance_reminder->toString());
+$supportingBalance = array('lsk' => $SupportingvalueAsFloat, 'raw' => $supportingBalance);
+$pool_balance_array = array('lsk' => $BalancevalueAsFloat, 'raw' => $pool_balance);
+$blocks = array('forged' => $forged_blocks, 'missed' => $missedblocks, 'last50' => $last_blocks);
 
 $response = array('pool_fee' => $config['pool_fee'],
 				  'delegate_address' => $delegate,
 				  'payout_threshold' => $config['payout_threshold'],
-				  'fixed_withdraw_fee' => $config['fixed_withdraw_fee'],
 				  'withdraw_interval_in_sec' => $config['withdraw_interval_in_sec'],
-				  'publicKey' => $publicKey,
+				  'public_key' => $publicKey,
 				  'pool_balance' => $pool_balance_array,
 				  'rank' => $rank,
 				  'approval' => $approval,
 				  'productivity' => $productivity,
+				  'supporting_balance' => $supportingBalance,
 				  'blocks' => $blocks,
-				  'updated' => $last_update,
+				  'username' => $username,
+				  'voters' => $voters_list,
 				  'success' => true);
 header('Content-Type: application/json');
 die(json_encode($response));

@@ -1,0 +1,332 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>LiskPool - Voter</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="../css/normalize.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+
+        <script src="../js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="header-container">
+            <header class="wrapper clearfix">
+                <h1 class="title">LiskPool</h1>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/stats">Stats</a></li>
+                        <li><a href="/charts">Charts</a></li>
+                    </ul>
+                </nav>
+            </header>
+        </div>
+
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+                <article>
+                    <div id="container_balance"></div>
+                    <div id="container_balance_network"></div>
+                    <div id="container_balance_withdraw"></div>
+                </article>
+
+                <aside>
+                    <h3>Voter stats</h3>
+                    <div id="account_address"><img src="../img/loading.gif" width="25" height="25"> Loading...</div>
+                    <div id="account_balance"></div>
+                    <br>
+                     <div id="withdraws"></div><br>
+                        <p><font size='2'>*Last 50 withdraws only</font></p>
+                    <br>
+                </aside>
+
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->
+
+        <div class="footer-container">
+            <footer class="wrapper">
+                <h4><a href="https://github.com/karek314/liskpool">LiskPool OpenSource on github</a></h4>
+            </footer>
+        </div>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+        <script src="../js/plugins.js"></script>
+        <script src="../js/main.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+            if (_GET("address")) {
+                GetAsync("../api/info/forged?by=" + _GET("address"),setFields);
+            } else {
+                document.getElementById("account_address").innerHTML='Please specify account you are looking for! <p><form action="../voter/"><input type="text" name="address" value="" placeholder="Your Lisk address"><input type="submit" value="Load"></form></p>'; 
+            }
+            function setFields(jsonString){
+                var json = JSON.parse(jsonString);
+                var status = json["success"]; 
+                if (status) {
+                    var liskstats = json["liskstats"];
+                    if (liskstats) {
+                         document.getElementById("account_address").innerHTML="Account: "+_GET("address") + "<br>This account is Liskstats.net contributor and additional revenue is granted!";
+                    }   else {
+                         document.getElementById("account_address").innerHTML="Account: "+_GET("address");
+                    }
+                    document.getElementById("account_balance").innerHTML="Pending balance: "+json["balance"]["lsk"]; 
+                    
+                    var Withdraws_html = "";
+                    for (i = 0; i < json["withdraws"].length; i++) { 
+                        var item = json["withdraws"][i];
+                        var d = new Date(item["timestamp"]*1000);
+                        var datestring = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+                        Withdraws_html = Withdraws_html + 'Tx:<a href="https://explorer.lisk.io/tx/' + item["txid"] + '" target="_blank" style="color:#000;text-decoration: none;">' + item["txid"] + "</a> " + item["balance"]["lsk"] + " LSK with " + item["fee"] + " LSK fee at " + datestring + "<br>"; 
+                    }
+                    document.getElementById("withdraws").innerHTML=Withdraws_html;
+                    var type = window.location.hash.substr(1);
+                    var dataScope = null;
+                    if (type == null) {
+                        dataScope = null;
+                    } else if (type == "gen-2017") {
+                        dataScope = type;
+                    } else {
+                        dataScope = null;
+                    }
+                    var url = "/data/";
+                    if (dataScope) {
+                        url = "/data/" + dataScope + "/";
+                    }
+                    Plotly.d3.json(url+"voters/" + _GET("address") + ".json", function(err, rows){
+                        var trace1 = {
+                            type: "scatter",
+                            mode: "lines",
+                            name: "Account balance on pool",
+                            x: [],
+                            y: [],
+                            line: {color: "#0f2e5d"}
+                        }
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            trace1.x.push(row[0]);
+                            trace1.y.push(row[1]);
+                        }
+                        var data = [trace1];
+                        var layout = {
+                            title: "Account balance on pool",
+                            plot_bgcolor: "rgba(124, 1, 1, 0)",
+                            paper_bgcolor: "rgba(125,1,1,0)",
+                            xaxis: {
+                                autorange: true,
+                                rangeselector: {buttons: [{
+                                    count: 1,
+                                    label: "1h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 12,
+                                    label: "12h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1d",
+                                    step: "day",
+                                    stepmode: "backward"
+                                },{
+                                    count: 3,
+                                    label: "3d",
+                                    step: "day",
+                                    stepmode: "backward",
+                                },{
+                                    count: 1,
+                                    label: "1w",
+                                    step: "week",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 6,
+                                    label: "6m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1y",
+                                    step: "year",
+                                    stepmode: "backward"
+                                },{
+                                    step: "all"
+                                }]},
+                                rangeslider: {},type: "date"
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: "linear"
+                            }
+                        };
+                        Plotly.newPlot("container_balance", data, layout);
+                    });
+                    Plotly.d3.json(url+"voters/balance/" + _GET("address") + ".json", function(err, rows){
+                        var trace1 = {
+                            type: "scatter",
+                            mode: "lines",
+                            name: "Account balance on Lisk network",
+                            x: [],
+                            y: [],
+                            line: {color: "#0f2e5d"}
+                        }
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            trace1.x.push(row[0]);
+                            trace1.y.push(row[1]);
+                        }
+                        var data = [trace1];
+                        var layout = {
+                            title: "Account balance on Lisk network",
+                            plot_bgcolor: "rgba(124, 1, 1, 0)",
+                            paper_bgcolor: "rgba(125,1,1,0)",
+                            xaxis: {
+                                autorange: true,
+                                rangeselector: {buttons: [{
+                                    count: 1,
+                                    label: "1h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 12,
+                                    label: "12h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1d",
+                                    step: "day",
+                                    stepmode: "backward"
+                                },{
+                                    count: 3,
+                                    label: "3d",
+                                    step: "day",
+                                    stepmode: "backward",
+                                },{
+                                    count: 1,
+                                    label: "1w",
+                                    step: "week",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 6,
+                                    label: "6m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1y",
+                                    step: "year",
+                                    stepmode: "backward"
+                                },{
+                                    step: "all"
+                                }]},
+                                rangeslider: {},type: "date"
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: "linear"
+                            }
+                        };
+                        Plotly.newPlot("container_balance_network", data, layout);
+                    });
+                    Plotly.d3.json(url+"voters/withdraw/" + _GET("address") + ".json", function(err, rows){
+                        var trace1 = {
+                            type: "scatter",
+                            mode: "lines",
+                            name: "Amount of LSK on withdraw",
+                            x: [],
+                            y: [],
+                            line: {color: "#0f2e5d"}
+                        }
+                        for (var i=0; i<rows.length; i++) {
+                            var row = rows[i];
+                            trace1.x.push(row[0]);
+                            trace1.y.push(row[1]);
+                        }
+                        var data = [trace1];
+                        var layout = {
+                            title: "Amount of LSK on withdraw",
+                            plot_bgcolor: "rgba(124, 1, 1, 0)",
+                            paper_bgcolor: "rgba(125,1,1,0)",
+                            xaxis: {
+                                autorange: true,
+                                rangeselector: {buttons: [{
+                                    count: 1,
+                                    label: "1h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 12,
+                                    label: "12h",
+                                    step: "hour",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1d",
+                                    step: "day",
+                                    stepmode: "backward"
+                                },{
+                                    count: 3,
+                                    label: "3d",
+                                    step: "day",
+                                    stepmode: "backward",
+                                },{
+                                    count: 1,
+                                    label: "1w",
+                                    step: "week",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 6,
+                                    label: "6m",
+                                    step: "month",
+                                    stepmode: "backward"
+                                },{
+                                    count: 1,
+                                    label: "1y",
+                                    step: "year",
+                                    stepmode: "backward"
+                                },{
+                                    step: "all"
+                                }]},
+                                rangeslider: {},type: "date"
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: "linear"
+                            }
+                        };
+                        Plotly.newPlot("container_balance_withdraw", data, layout);
+                    });
+                } else {
+                    document.getElementById("account_address").innerHTML='Account does not exists! <p><form action="../voter/"><input type="text" name="address" value="" placeholder="Your Lisk address"><input type="submit" value="Load"></form></p>'; 
+                }
+            }
+        </script>
+    </body>
+</html>
