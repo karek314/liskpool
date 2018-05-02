@@ -158,9 +158,9 @@ If you want to contribute, fork and pull request or open issue.
 Liskpool - MIT License,<br>
 Opensource libraries used:<br>
 HTML5 Boilerplate v5.0 | MIT License<br>
-Plotly.js | MIT License
-Lisk-PHP | MIT License
-Modernizr 2.8.3 (Custom Build) | MIT License
-Respond.js v1.4.2 | MIT License
-jquery | MIT License
-normalize.css v3.0.2 | MIT License
+Plotly.js | MIT License<br>
+Lisk-PHP | MIT License<br>
+Modernizr 2.8.3 (Custom Build) | MIT License<br>
+Respond.js v1.4.2 | MIT License<br>
+jquery | MIT License<br>
+normalize.css v3.0.2 | MIT License<br>
