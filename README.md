@@ -160,3 +160,7 @@ Opensource libraries used:<br>
 HTML5 Boilerplate v5.0 | MIT License<br>
 Plotly.js | MIT License
 Lisk-PHP | MIT License
+Modernizr 2.8.3 (Custom Build) | MIT License
+Respond.js v1.4.2 | MIT License
+jquery | MIT License
+normalize.css v3.0.2 | MIT License
