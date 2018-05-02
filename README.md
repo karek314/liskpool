@@ -156,7 +156,7 @@ If you want to contribute, fork and pull request or open issue.
 
 # License
 Liskpool - MIT License,<br>
-<b>Opensource libraries used</b>
+<b>Opensource libraries used</b><br>
 HTML5 Boilerplate v5.0 | MIT License<br>
 Plotly.js | MIT License<br>
 Lisk-PHP | MIT License<br>
