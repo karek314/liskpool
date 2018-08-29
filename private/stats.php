@@ -5,6 +5,7 @@ require_once('../lisk-php/main.php');
 require_once('logging.php');
 $config = include('../config.php');
 $df = 0;
+$upd = 0;
 $delegate = $config['delegate_address'];
 $pool_fee = floatval(str_replace('%', '', $config['pool_fee']));
 $protocol = $config['protocol'];
@@ -16,6 +17,7 @@ while(1) {
   $m = new Memcached();
   $m->addServer('localhost', 11211);
   $df++;
+  $upd++;
   $start_time = time();
   clog("Fetching data...",'stats');
   $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
@@ -141,10 +143,14 @@ while(1) {
     }
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     //handle pool reserve
-    if ($pool_lsk_reserve > 10) {
+    if ($pool_lsk_reserve > 10 && $upd > 360) {
       $tmp = round(($pool_lsk_reserve-10)*100000000);
       $task = "UPDATE miners SET balance=balance+'$tmp' WHERE address='$fee';"; 
       $query = mysqli_query($mysqli,$task) or die("Database Error");
+      $upd=0;
+      clog("[".$df."] Pool reserve balance updated",'processing');
+    } else {
+      clog("[".$df."] Not updating pool reserve ".$upd."/360",'processing');
     }
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();
