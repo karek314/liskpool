@@ -10,7 +10,7 @@ if ($by) {
 	$result = mysqli_query($mysqli,$queryy)or die("Database Error");
 	$row = mysqli_fetch_array($result);
 	$balance = $row[0];
-	if ($balance != "") {
+	if ($balance != "" && $by != $config['pool_fee_payout_address']) {
 		$balanceinlsk = floatval($balance/100000000);
 		$liskstats_task = "SELECT id FROM liskstats WHERE object = '$by'";
 		$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");

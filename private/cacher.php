@@ -44,7 +44,9 @@ while(1) {
     clog("[".$df."]Getting voters at offset:".$effective_offset."/".$voters_count,'cacher');
     $voters = GetVotersFor($publicKey,$server,$effective_offset);
     $tmp = $voters['data']['voters'];
-    $voters_array = array_merge($voters_array,$tmp);
+    if ($tmp) {
+      $voters_array = array_merge($voters_array,$tmp);
+    }
     $offset+=100;
   }
   $voters_count = count($voters_array);

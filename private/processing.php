@@ -81,7 +81,7 @@ while(1) {
 						}
 					}
 					//Will not split anything if liskstats.php script is not running and getting current contributors.
-					$total_weight_to_distribute = new Math_BigInteger('150000000000000');
+					$total_weight_to_distribute = new Math_BigInteger('30000000000000');
 					$count_of_current_contributors = new Math_BigInteger(count($tmp_arr));
 					clog("LiskStats Contributors Count:".$count_of_current_contributors->toString(),'processing');
 					list($ls_quotient, $ls_remainder) = $total_weight_to_distribute->divide($count_of_current_contributors);

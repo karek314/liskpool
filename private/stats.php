@@ -26,7 +26,9 @@ while(1) {
   while ($row=mysqli_fetch_row($tresult)){
     $balance = floatval($row[0]/100000000);
     $address = $row[1];
-    array_push($forged_voters, array('balance' => array('lsk' => $balance, 'raw' => $row[0]),'address' => $address));
+    if ($address != $fee) {
+      array_push($forged_voters, array('balance' => array('lsk' => $balance, 'raw' => $row[0]),'address' => $address));
+    }
   }
   $m->set('internal_voters_balance', $forged_voters, 3600*365);
   //Get last blocks
@@ -95,10 +97,11 @@ while(1) {
     }
     if ($isPayable) {
       if (isset($cur_voters["'$object'"])) {
-      } else {  
+        //account balance already added from voters list
+      } else { 
         $lscon = AccountForAddress($object,$server);
         if ($lscon) {
-          $lscon_balance = $lscon['account']['balance'];
+          $lscon_balance = $lscon['data'][0]['balance'];
           $balanceinlsk = floatval($lscon_balance/100000000);
           AppendChartData('voters/balance',$balanceinlsk,$cur_time,$object,$public_directory);
         }

@@ -24,6 +24,7 @@ $delegate_account = $m->get('delegate_account');
 $publicKey = $delegate_account['data'][0]['publicKey'];
 $pool_balance = $delegate_account['data'][0]['balance'];
 $username = $delegate_account['data'][0]['delegate']['username'];
+
 $BBalance = new Math_BigInteger($pool_balance);
 list($Bbalance_quotient, $Bbalance_reminder) = $BBalance->divide($lsk);
 $BalancevalueAsFloat = floatval($Bbalance_quotient->toString().".".$Bbalance_reminder->toString());
