@@ -8,6 +8,7 @@ $secret2 = $config['secondSecret'];
 $slow_withdraw = $config['slow_withdraw'];
 $fancy_secret = $config['fancy_withdraw_hub'];
 $public_directory = $config['public_directory'];
+$tx_data = $config['withdraw_message'];
 $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
 $payer_adr = $argv[1];
 if ($payer_adr == '') {
@@ -27,12 +28,12 @@ $deduced_by_fee = $BalanceDeducedByFee->toString();
 list($balance_quotient, $balance_reminder) = $balanceinlsk->divide($lsk);
 $original_balance = floatval($balance_quotient->toString().".".$balance_reminder->toString());
 if ($fancy_secret) {
-	$tx = CreateTransaction($payer_adr, $deduced_by_fee, $fancy_secret, false, false, -10);
+	$tx = CreateTransaction($payer_adr, $deduced_by_fee, $fancy_secret, false, $tx_data, -10);
 } else {
 	if (!$secret2) {
-		$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, false, false, -10);
+		$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, false, $tx_data, -10);
 	} else {
-		$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, $secret2, false, -10);
+		$tx = CreateTransaction($payer_adr, $deduced_by_fee, $secret1, $secret2, $tx_data, -10);
 	}
 }
 $tx_resp = SendTransaction(json_encode($tx),$server);
