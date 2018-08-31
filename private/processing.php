@@ -25,6 +25,13 @@ while(1) {
 	$json = AccountForAddress($delegate,$server);
 	$publicKey = $json['data'][0]['publicKey'];
 	clog("[".$df."]PublicKey:".$publicKey,'processing');
+	while(!$json && count($publicKey) != 64){
+		clog("[".$df."]Public key was empty, retrying...",'processing');
+		csleep(5);
+		$json = AccountForAddress($delegate,$server);
+		$publicKey = $json['data'][0]['publicKey'];
+		clog("[".$df."]PublicKey:".$publicKey,'processing');
+	}
 	//Retrive last forged block
 	$forged_block_json = GetBlocksBy($publicKey,$server); 
 	$block_jarray = $forged_block_json['data'];
