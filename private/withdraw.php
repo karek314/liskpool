@@ -21,8 +21,8 @@ $lsk = new Math_BigInteger(LSK_BASE);
 while(1){
 	$m = new Memcached();
   	$m->addServer('localhost', 11211);
-  	$lisk_host = $m->get('lisk_host');
-  	$lisk_port = $m->get('lisk_port');
+  	$server = getCurrentServer($m);
+  	clog("Current server set to: ".$server,'withdraw');
 	$mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die("Database Error");
 	$withdraw_array = array();
 	$required_balance = new Math_BigInteger('0');

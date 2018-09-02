@@ -16,6 +16,8 @@ $fancy_secret = $config['fancy_withdraw_hub'];
 while(1) {
   $m = new Memcached();
   $m->addServer('localhost', 11211);
+  $server = getCurrentServer($m);
+  clog("Current server set to: ".$server,'stats');
   $df++;
   $upd++;
   $start_time = time();
@@ -143,14 +145,14 @@ while(1) {
     }
     AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
     //handle pool reserve
-    if ($pool_lsk_reserve > 10 && $upd > 360) {
+    if ($pool_lsk_reserve > 10 && $upd > 2880) {
       $tmp = round(($pool_lsk_reserve-10)*100000000);
       $task = "UPDATE miners SET balance=balance+'$tmp' WHERE address='$fee';"; 
       $query = mysqli_query($mysqli,$task) or die("Database Error");
       $upd=0;
       clog("[".$df."] Pool reserve balance updated",'processing');
     } else {
-      clog("[".$df."] Not updating pool reserve ".$upd."/360",'processing');
+      clog("[".$df."] Not updating pool reserve ".$upd."/2880",'processing');
     }
     AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
     $end_time = time();

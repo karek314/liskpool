@@ -1,6 +1,20 @@
 <?php
 
 
+function getCurrentServer($m){
+	$lisk_host = $m->get('lisk_host');
+	$lisk_port = $m->get('lisk_port');
+	$lisk_protocol = $m->get('lisk_protocol');
+	$server = $lisk_protocol."://";
+	if ($lisk_port == 80 || $lisk_port == 443) {
+		$server .= $lisk_host."/";
+	} else {
+		$server .= $lisk_host.":".$lisk_port."/";
+	}
+	return $server;
+}
+
+
 function csleep($wait_time){
 	$org_wait_time = $wait_time;
 	$start_time = time();

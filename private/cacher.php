@@ -10,6 +10,8 @@ $delegate = $config['delegate_address'];
 while(1) {
   $m = new Memcached();
   $m->addServer('localhost', 11211);
+  $server = getCurrentServer($m);
+  clog("Current server set to: ".$server,'cacher');
   $df++;
   $start_time = time();
   clog("Fetching data...",'cacher');

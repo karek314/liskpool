@@ -17,8 +17,8 @@ $df = 0;
 while(1) {
 	$m = new Memcached();
 	$m->addServer('localhost', 11211);
-	$lisk_host = $m->get('lisk_host');
-	$lisk_port = $m->get('lisk_port');
+	$server = getCurrentServer($m);
+  	clog("Current server set to: ".$server,'processing');
 	$df++;
 	clog("[".$df."]Getting last 100 blocks forged...",'processing');
 	//Retrive Public Key
