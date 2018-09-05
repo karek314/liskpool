@@ -23,9 +23,9 @@ if ($by) {
 		$withdrawResult = mysqli_query($mysqli,$withdrawTask)or die("Database Error");
 		$withdraws = array();
 		while ($row=mysqli_fetch_row($withdrawResult)){
-	    	$balance = $row[0];
-	    	$balanceinlsk = floatval($balance/100000000);
-	    	$temp_balance = array('lsk' => $balanceinlsk, "raw" => $balance);
+	    	$tmp_balance = $row[0];
+	    	$tmp_balanceinlsk = floatval($tmp_balance/100000000);
+	    	$temp_balance = array('lsk' => $tmp_balanceinlsk, "raw" => $tmp_balance);
 	    	$withdrawObject = array('balance' => $temp_balance, "timestamp" => $row[1], "txid" => $row[2], "fee" => $row[3]);
 	    	array_push($withdraws, $withdrawObject);
 		}
