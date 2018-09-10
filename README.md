@@ -139,10 +139,6 @@ api/info/liskstats/?type=json
 # Logs
 As soon any of background scripts gets excuted, <b>logs</b> directory will appear in <b>private</b> directory. It will store all logs of all background scripts.
 
-# Migration from Lisk Core 0.9.X branch to 1.0.0 / Master
-Soon.
-
-
 # Migration from older version of pool
 In past all chart data was stored in database tables, however with millions of rows and cheap vps it could have been possible bottleneck with thousands of voters and more. If you are pool operator and you want to keep all statistics history.
 1. Stop all background scripts
