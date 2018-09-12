@@ -143,7 +143,9 @@ while(1) {
       $fancy_address = getAddressFromPublicKey($output['public']);
       $pool_lsk_reserve+=getCurrentBalance($fancy_address,$server,false);
     }
-    AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
+    if ($pool_lsk_reserve) {
+      AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
+    }
     //handle pool reserve
     if ($pool_lsk_reserve > 10 && $upd > 2880) {
       $tmp = round(($pool_lsk_reserve-10)*100000000);
@@ -154,7 +156,9 @@ while(1) {
     } else {
       clog("[".$df."] Not updating pool reserve ".$upd."/2880",'processing');
     }
-    AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
+    if ($pool_productivity) {
+      AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
+    }
     $end_time = time();
     $took = $end_time - $start_time;
     $time_sleep = 60-$took;
