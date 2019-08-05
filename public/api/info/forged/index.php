@@ -35,6 +35,7 @@ if ($by) {
 		$tmp = array('success' => false, 'info' => "voter not exists");
 	}
 	header('Content-Type: application/json');
+	header('Access-Control-Allow-Origin: *');
 	die(json_encode($tmp));
 } else {
 	$m = new Memcached();
@@ -42,6 +43,7 @@ if ($by) {
 	$data = $m->get('internal_voters_balance');
 	$response = array('data' => $data, 'success' => true, 'info' => "biggest 100 only");
 	header('Content-Type: application/json');
+	header('Access-Control-Allow-Origin: *');
 	die(json_encode($response));
 }
 ?>

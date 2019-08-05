@@ -59,5 +59,6 @@ $response = array('pool_fee' => $config['pool_fee'],
 				  'voters' => $voters_list,
 				  'success' => true);
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 die(json_encode($response));
 ?>
