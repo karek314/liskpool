@@ -2,8 +2,8 @@
 This is first and fully open source Lisk delegate forging pool (also known as delegate reward sharing). Written in PHP.
 ![preview](readme_files/pool_preview.png)
 
-### Tokens and Dapps
-In further updates LiskPool will allow to prepare or pregenerate genesis blocks to custom dapps allowing to distribute own tokens to voters, exact details yet to be announced by LiskHQ.
+### Tokens and blockchain apps
+In further updates LiskPool will be adapated to work with custom apps and issuance of tokens.
 
 # Requirements
 <a href="https://mariadb.org" target="_blank">MariaDB server</a><br>
@@ -12,10 +12,10 @@ In further updates LiskPool will allow to prepare or pregenerate genesis blocks 
 <a href="https://lisk.io/" target="_blank">Lisk Node</a><br>
 
 ## Important
-Only <b>public</b> directory must be served with webserver. While <b>config.php</b> and <b>private</b> should not be served.
- 
+Only <b>public</b> directory must be served with web server. While <b>config.php</b> and <b>private</b> should not be served. This repository contains only background core code and <b>public</b> api endpoints. Web interface is available in separate repository: https://github.com/thepool-io/liskpool-html Development of open source HTML interface version will not be continued.
+
 # Installation
-Liskpool now fully relies on [Lisk-PHP](https://github.com/karek314/lisk-php) to interact with Lisk node, including transaction signing.
+Liskpool now fully relies on [Lisk-PHP](https://github.com/thepool-io/lisk-php) to interact with Lisk node, including transaction signing.
 ```sh
 cd liskpool
 git submodule update --init --recursive
@@ -24,6 +24,14 @@ bash setup.sh
 cd ..
 apt-get install nginx mariadb-server memcached php-memcached php php-curl
 ```
+
+Optionally, basic html interface
+```sh
+cd liskpool
+cd public
+git clone https://github.com/thepool-io/liskpool-html .
+```
+
 Setup mariadb server, nginx and import database scheme <pre>lisk_pool_scheme_db.sql</pre>
 
 Navigate to config.php
@@ -77,8 +85,6 @@ Navigate to <b>/private/</b> directory and start background scripts:<br>
 <pre>screen -dmS stats php stats.php</pre>
 <br><b>Withdraw script</b> - this script withdraws revenue as defined in config. It features multithreaded withdraw processing if your cpu has multiple cores or supports htt. Technically, it's more like forking rather threading, however it was simplier to implement and saves some time building php with zts enabled.
 <pre>screen -dmS withdraw php withdraw.php</pre>
-<br>If you want to support Liskstats contributors and Liskstats itself use also script below. This script connects to Liskstats.net and retrieve all current contributors. Every contributor is added to split with "fake" votepower which is defined in <b>processing.php</b>.
-<pre>screen -dmS liskstats php liskstats.php</pre>
 <br>
 
 <b>Optional Balance checker</b> - Simple script to compare total LISK value stored in database in reference to actual LISK stored on delegate account.
@@ -97,10 +103,10 @@ screen -x processing
 </pre>
 
 ## Forging
-Liskpool works great along with [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover), it's compatible with shared library.
-Just pull it in main directory. Then follow instruction from [Lisk-forging-failover](https://github.com/karek314/Lisk-forging-failover) repository.
+Liskpool works great along with [Lisk-forging-failover](https://github.com/thepool-io/Lisk-forging-failover), it's compatible with shared library.
+Just pull it in main directory. Then follow instruction from [Lisk-forging-failover](https://github.com/thepool-io/Lisk-forging-failover) repository.
 ```sh
-git clone https://github.com/karek314/Lisk-forging-failover
+git clone https://github.com/thepool-io/Lisk-forging-failover
 cd Lisk-forging-failover
 bash setup.sh
 ```
@@ -139,25 +145,10 @@ api/info/liskstats/?type=json
 # Logs
 As soon any of background scripts gets excuted, <b>logs</b> directory will appear in <b>private</b> directory. It will store all logs of all background scripts.
 
-# Migration from older version of pool
-In past all chart data was stored in database tables, however with millions of rows and cheap vps it could have been possible bottleneck with thousands of voters and more. If you are pool operator and you want to keep all statistics history.
-1. Stop all background scripts
-2. Navigate to <b>/helpers/</b> directory in <b>/private/</b>
-3. Execute ```php db2files.php all``` or ```screen -dmS dump php db2files.php all```
-4. Wait until it finish, it can take hours for huge database. If your connection might drop, possibly execute this as background job choosing second command.
-5. Start updated background scripts.
-6. Tables <b>pool_xxx</b> and <b>miner_balance</b> can be deleted.
-
 # Contributing
 If you want to contribute, fork and pull request or open issue.
 
 # License
 Liskpool - MIT License,<br>
 <b>Opensource libraries used</b><br>
-HTML5 Boilerplate v5.0 | MIT License<br>
-Plotly.js | MIT License<br>
 Lisk-PHP | MIT License<br>
-Modernizr 2.8.3 (Custom Build) | MIT License<br>
-Respond.js v1.4.2 | MIT License<br>
-jquery | MIT License<br>
-normalize.css v3.0.2 | MIT License<br>
