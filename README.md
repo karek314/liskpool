@@ -1,6 +1,5 @@
 # Lisk Pool
 This is first and fully open source Lisk delegate forging pool (also known as delegate reward sharing). Written in PHP.
-![preview](readme_files/pool_preview.png)
 
 ### Tokens and blockchain apps
 In further updates LiskPool will be adapated to work with custom apps and issuance of tokens.
