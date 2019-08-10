@@ -57,6 +57,7 @@ $response = array('pool_fee' => $config['pool_fee'],
 				  'blocks' => $blocks,
 				  'username' => $username,
 				  'voters' => $voters_list,
+				  'lisk_nodes' => count($lisk_nodes),
 				  'success' => true);
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
