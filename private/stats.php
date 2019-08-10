@@ -13,6 +13,9 @@ $public_directory = $config['public_directory'];
 $fee = $config['pool_fee_payout_address'];
 $fancy_secret = $config['fancy_withdraw_hub'];
 
+$CanAppendChartData = true;
+$LastDataUpdate = 0;
+
 while(1) {
   $m = new Memcached();
   $m->addServer('localhost', 11211);
@@ -24,7 +27,7 @@ while(1) {
   clog("Fetching data...",'stats');
   $mysqli=mysqli_connect($config['host'], $config['username'], $config['password'], $config['bdd']) or die(mysqli_error($mysqli));
   //Get first 100 biggst voters and cache it in memory
-  $task = "SELECT balance,address FROM miners WHERE address!='$delegate' ORDER BY balance DESC LIMIT 100;";
+  $task = "SELECT balance,address FROM miners WHERE address!='$delegate' ORDER BY balance DESC LIMIT 101;";
   $tresult = mysqli_query($mysqli,$task)or die("Database Error");
   $forged_voters = array();
   while ($row=mysqli_fetch_row($tresult)){
@@ -71,11 +74,11 @@ while(1) {
   $pool_productivity = $d_data['data'][0]['productivity'];
   //Retrive voters
   $voters_array = null;
-  clog("[".$df."]Reading voters list from cache...",'processing');
+  clog("[".$df."] Reading voters list from cache...",'processing');
   $cached = ReadCache('voters_list');
   $voters_array = json_decode($cached,true);
   $voters_count = count($voters_array);
-  clog("[".$df."]Voters List Count:".$voters_count,'processing');
+  clog("[".$df."] Voters List Count:".$voters_count,'processing');
   $total_voters_power = 0;
   $cur_time = time();
   $cur_voters = array();
@@ -85,47 +88,32 @@ while(1) {
     $balanceinlsk = floatval($balance/100000000);
     $address = $value['address'];
     $cur_voters["'$address'"] = $address; 
-    AppendChartData('voters/balance',$balanceinlsk,$cur_time,$address,$public_directory);
-  }
-  //Add Likstats contributors balances
-  $liskstats_task = "SELECT object FROM liskstats";
-  $liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
-  while ($row=mysqli_fetch_row($liskstats_result)){
-    $object = $row[0];
-    $isPayable = false;
-    if (strpos($object, 'L') !== false) {
-      $tmp = str_replace('L', '', $object);
-      if (is_numeric($tmp)) {
-        $isPayable = true;
-      }
-    }
-    if ($isPayable) {
-      if (isset($cur_voters["'$object'"])) {
-        //account balance already added from voters list
-      } else { 
-        $lscon = AccountForAddress($object,$server);
-        if ($lscon) {
-          $lscon_balance = $lscon['data'][0]['balance'];
-          $balanceinlsk = floatval($lscon_balance/100000000);
-          AppendChartData('voters/balance',$balanceinlsk,$cur_time,$object,$public_directory);
-        }
-      }
+    if ($CanAppendChartData) {
+      AppendChartData('voters/balance',$balanceinlsk,$cur_time,$address,$public_directory);
     }
   }
   if ($voters_count != 0 && $total_voters_power) {
     $total_voters_power_d = $approval;
     if ($total_voters_power_d != '' && $total_voters_power_d != ' ') {
-      AppendChartData(false,$total_voters_power_d,$cur_time,'approval',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$total_voters_power_d,$cur_time,'approval',$public_directory);
+      }
     }
     $balanceinlsk_p = floatval($pool_balance/100000000);
     if ($balanceinlsk_p != '' && $balanceinlsk_p != ' ') {
-      AppendChartData(false,$balanceinlsk_p,$cur_time,'balance',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$balanceinlsk_p,$cur_time,'balance',$public_directory);
+      }
     }
     if ($voters_count != '' && $voters_count != ' ') {
-      AppendChartData(false,$voters_count,$cur_time,'voters',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$voters_count,$cur_time,'voters',$public_directory);
+      }
     }
     if ($rank != '' && $rank != ' ') {
-      AppendChartData(false,$rank,$cur_time,'rank',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$rank,$cur_time,'rank',$public_directory);
+      }
     }
     $voters_task = "SELECT address,balance FROM miners";
     $task_result = mysqli_query($mysqli,$voters_task)or die("Database Error");
@@ -134,7 +122,9 @@ while(1) {
       $balanceinlsk = $row[1];
       $balanceinlsk = floatval($balanceinlsk/100000000);
       if ($balanceinlsk != 0) {
-        AppendChartData('voters',$balanceinlsk,$cur_time,$voter_address,$public_directory);
+        if ($CanAppendChartData) {
+          AppendChartData('voters',$balanceinlsk,$cur_time,$voter_address,$public_directory);
+        }
       }
     }
     $pool_lsk_reserve = getCurrentBalance($delegate,$server,false)-getCurrentDBUsersBalance($mysqli,false);
@@ -144,7 +134,9 @@ while(1) {
       $pool_lsk_reserve+=getCurrentBalance($fancy_address,$server,false);
     }
     if ($pool_lsk_reserve) {
-      AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$pool_lsk_reserve,$cur_time,'reserve',$public_directory);
+      }
     }
     //handle pool reserve
     if ($pool_lsk_reserve > 10 && $upd > 2880) {
@@ -157,7 +149,9 @@ while(1) {
       clog("[".$df."] Not updating pool reserve ".$upd."/2880",'processing');
     }
     if ($pool_productivity) {
-      AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
+      if ($CanAppendChartData) {
+        AppendChartData(false,$pool_productivity,$cur_time,'productivity',$public_directory);
+      }
     }
     $end_time = time();
     $took = $end_time - $start_time;
@@ -165,6 +159,21 @@ while(1) {
     if ($time_sleep < 1) {
       $time_sleep = 1;
     }
+    if ($CanAppendChartData) {
+      clog("[".$df."] AppendChartData->true",'stats');
+      $CanAppendChartData = false;
+      $LastDataUpdate = time();
+    }
+
+    $DataUpdateDifference = time()-$LastDataUpdate;
+    if ($DataUpdateDifference > 21600) { //update once per 6h
+      $CanAppendChartData = true;
+      clog("[".$df."] Chart data will be updated in next cycle",'stats');
+    } else {
+      $CanAppendChartData = false;
+      clog("[".$df."] Chart data update $DataUpdateDifference/21600",'stats');
+    }
+
     clog("[".$df."] Statistics Update\nTook -> ".$took."s\nActive voters -> ".$voters_count."\nApproval -> ".$approval."\nVotepower -> ".$total_voters_power." \nBalance -> ".$balanceinlsk_p."\nRank -> ".$rank."\nBalance Reserve -> ".$pool_lsk_reserve."\nProductivity -> ".$pool_productivity,'stats');
     clog("Sleeping ".$time_sleep."s...",'stats');
     csleep($time_sleep);
