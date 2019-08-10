@@ -44,7 +44,6 @@ while(1) {
 			$splitted = new Math_BigInteger('0');
 			$forged_block = $value['height'];
 			$forged_block_revenue = new Math_BigInteger($value['reward']);
-			//$forged_block_revenue = new Math_BigInteger('500000000'); //Force debug
 			clog("[".$key."]Forged Block: ".$forged_block." with reward:".$forged_block_revenue->toString(),'processing');
 			$task = "SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1";	
 			$query = mysqli_query($mysqli,$task) or die("Database Error");	
@@ -66,49 +65,6 @@ while(1) {
 						$task = "INSERT INTO blocks (blockid) SELECT * FROM (SELECT '$forged_block') AS tmp WHERE NOT EXISTS (SELECT * FROM blocks WHERE blockid = '$forged_block' LIMIT 1)";
 						$query = mysqli_query($mysqli,$task) or die(mysqli_error($mysqli));
 						$affected = $mysqli -> affected_rows;
-					}
-					//Add Likstats contributors
-					$liskstats_task = "SELECT DISTINCT object FROM liskstats";
-					$liskstats_result = mysqli_query($mysqli,$liskstats_task)or die("Database Error");
-					$tmp_arr = array();
-					while ($row=mysqli_fetch_row($liskstats_result)){
-						$object = $row[0];
-						$isPayable = false;
-						if (strpos($object, 'L') !== false) {
-							$tmp = str_replace('L', '', $object);
-							if (is_numeric($tmp)) {
-								$isPayable = true;
-							}
-						}
-						if ($isPayable) {
-							clog("LiskStats Contributor [".$object."] - Payable",'processing');
-							array_push($tmp_arr, $object);
-						} else {
-							clog("LiskStats Contributor [".$object."] - NOT Payable",'processing');
-						}
-					}
-					//Will not split anything if liskstats.php script is not running and getting current contributors.
-					$total_weight_to_distribute = new Math_BigInteger('30000000000000');
-					$count_of_current_contributors = new Math_BigInteger(count($tmp_arr));
-					clog("LiskStats Contributors Count:".$count_of_current_contributors->toString(),'processing');
-					list($ls_quotient, $ls_remainder) = $total_weight_to_distribute->divide($count_of_current_contributors);
-					$single_weight = $ls_quotient->toString();
-					foreach ($tmp_arr as $key => $value) {
-						clog("Adding LiskStats Contributor [".$value."] with balance:".$single_weight,'processing');
-						$t_array = array('username' => NULL,'address' => $value,'publicKey' => '','balance' => $single_weight);
-						array_push($voters_array, $t_array);
-					}
-					if ((int)$support_standby_delegates > 0) {
-						clog("Support standby delegates count:".$support_standby_delegates,'processing');
-						$stndby_delegates = GetDelegateList($support_standby_delegates,'101',$server)['delegates'];
-						foreach ($stndby_delegates as $key => $value) {
-							$address = $value['address'];
-							clog("Adding Standby Delegate Support [".$address."] with balance:".$support_standby_delegates_amount,'processing');
-							$t_array = array('username' => NULL,'address' => $address,'publicKey' => '','balance' => $support_standby_delegates_amount);
-							array_push($voters_array, $t_array);
-						}
-					} else {
-						clog("Not supporting standby delegates",'processing');
 					}
 					clog("Current Voters:",'processing');
 					foreach ($voters_array as $key => $value) {
